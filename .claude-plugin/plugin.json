@@ -1,0 +1,21 @@
+{
+  "name": "ios-mobile-designer",
+  "version": "1.0.0",
+  "description": "Design iOS apps following Apple HIG with Liquid Glass (iOS 26). Generate native components, ensure accessibility, and create stunning interfaces for iPhone & iPad. Supports SwiftUI, React Native, and Flutter.",
+  "author": {
+    "name": "iOS Mobile Designer",
+    "email": "contact@example.com"
+  },
+  "keywords": [
+    "ios",
+    "mobile",
+    "design",
+    "apple",
+    "hig",
+    "swiftui",
+    "react-native",
+    "flutter",
+    "liquid-glass",
+    "accessibility"
+  ]
+}
