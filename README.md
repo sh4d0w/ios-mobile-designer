@@ -33,13 +33,13 @@ A Claude Code skill for designing professional iOS applications following Apple'
 
 **Step 2: Install the plugin**
 ```bash
-/plugin install apple-hig-designer@ios-mobile-designer
+/plugin install ios-mobile-designer@ios-mobile-designer
 ```
 
 Or use the full Git URL:
 ```bash
 /plugin marketplace add https://github.com/sh4d0w/ios-mobile-designer.git
-/plugin install apple-hig-designer@ios-mobile-designer
+/plugin install ios-mobile-designer@ios-mobile-designer
 ```
 
 ### Manual Installation (Local)
