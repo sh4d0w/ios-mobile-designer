@@ -9,11 +9,9 @@
   },
   "plugins": [
     {
-      "name": "sh4d0w",
-      "description": "Design iOS apps following Apple's Human Interface Guidelines with Liquid Glass (iOS 26). Generate native components, ensure accessibility, and create stunning interfaces for iPhone & iPad.",
-      "source": "./",
-      "strict": true,
-      "skills": ["./skills/ios-mobile-designer"]
+      "name": "ios-mobile-designer",
+      "description": "Design iOS apps following Apple's Human Interface Guidelines with Liquid Glass (iOS 26).",
+      "source": "./"
     }
   ]
 }
