@@ -124,8 +124,6 @@ ios-mobile-designer/
 ├── skills/
 │   └── ios-mobile-designer/
 │       └── SKILL.md         # Main skill instructions (~34KB)
-├── demo/
-│   └── *.html               # Interactive HTML demos
 ├── .gitignore
 ├── LICENSE
 └── README.md
