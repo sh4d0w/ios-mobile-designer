@@ -1,0 +1,37 @@
+{
+  "name": "ios-mobile-designer",
+  "owner": {
+    "name": "sh4d0w",
+    "email": "contact@example.com"
+  },
+  "metadata": {
+    "description": "iOS Mobile Designer plugin marketplace - Apple HIG with Liquid Glass design",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "apple-hig-designer",
+      "source": ".",
+      "description": "Design iOS apps following Apple Human Interface Guidelines with Liquid Glass (iOS 26). Generate native components, ensure accessibility, and create stunning interfaces for iPhone & iPad.",
+      "version": "1.0.0",
+      "author": {
+        "name": "sh4d0w"
+      },
+      "repository": "https://github.com/sh4d0w/ios-mobile-designer",
+      "license": "MIT",
+      "keywords": [
+        "ios",
+        "mobile",
+        "design",
+        "apple",
+        "hig",
+        "swiftui",
+        "react-native",
+        "flutter",
+        "liquid-glass",
+        "accessibility"
+      ],
+      "category": "design"
+    }
+  ]
+}

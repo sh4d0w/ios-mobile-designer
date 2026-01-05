@@ -26,22 +26,37 @@ A Claude Code skill for designing professional iOS applications following Apple'
 
 ### From GitHub (Recommended)
 
+**Step 1: Add the marketplace**
 ```bash
-claude /plugin add https://github.com/sh4d0w/ios-mobile-designer
+/plugin marketplace add sh4d0w/ios-mobile-designer
 ```
 
-### Claude Desktop / claude.ai
+**Step 2: Install the plugin**
+```bash
+/plugin install apple-hig-designer@ios-mobile-designer
+```
 
-1. Go to **Settings** → **Capabilities** → **Skills**
-2. Click **Add Skill**
-3. Enter: `https://github.com/sh4d0w/ios-mobile-designer`
+Or use the full Git URL:
+```bash
+/plugin marketplace add https://github.com/sh4d0w/ios-mobile-designer.git
+/plugin install apple-hig-designer@ios-mobile-designer
+```
 
-### Manual Installation
+### Manual Installation (Local)
 
 ```bash
 git clone https://github.com/sh4d0w/ios-mobile-designer.git
-claude /plugin add ./ios-mobile-designer
+cd ios-mobile-designer
+/plugin install .
 ```
+
+### Interactive UI
+
+You can also use the plugin manager UI:
+```bash
+/plugin
+```
+Then navigate to **Marketplaces** tab and add `sh4d0w/ios-mobile-designer`.
 
 ## Usage
 
