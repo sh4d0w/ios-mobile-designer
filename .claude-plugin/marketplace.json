@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "ios-mobile-designer",
-      "source": "../",
+      "source": "./../",
       "description": "Design iOS apps following Apple Human Interface Guidelines with Liquid Glass (iOS 26). Generate native components, ensure accessibility, and create stunning interfaces for iPhone & iPad.",
       "version": "1.0.0",
       "author": {
