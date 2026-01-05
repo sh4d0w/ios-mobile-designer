@@ -1,3 +1,8 @@
+---
+name: ios-mobile-designer
+description: Design iOS apps following Apple's Human Interface Guidelines with Liquid Glass (iOS 26). Generate native components, ensure accessibility, and create stunning interfaces for iPhone & iPad.
+---
+
 # iOS Mobile App Designer
 
 Design professional iOS applications following Apple Human Interface Guidelines (HIG) with support for the new Liquid Glass design language (iOS 26). This skill enables creation of native, accessible, and visually stunning interfaces for iPhone and iPad using SwiftUI, React Native, or Flutter.
