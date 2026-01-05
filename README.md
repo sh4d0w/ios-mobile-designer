@@ -33,13 +33,13 @@ A Claude Code skill for designing professional iOS applications following Apple'
 
 **Step 2: Install the plugin**
 ```bash
-/plugin install ios-mobile-designer@ios-mobile-designer
+/plugin install ios-mobile-designer@sh4d0w-plugins
 ```
 
 Or use the full Git URL:
 ```bash
 /plugin marketplace add https://github.com/sh4d0w/ios-mobile-designer.git
-/plugin install ios-mobile-designer@ios-mobile-designer
+/plugin install ios-mobile-designer@sh4d0w-plugins
 ```
 
 ### Manual Installation (Local)
@@ -119,12 +119,13 @@ Claude will generate production-ready code following Apple HIG with:
 ```
 ios-mobile-designer/
 ├── .claude-plugin/
-│   └── plugin.json          # Plugin manifest
+│   ├── plugin.json          # Plugin manifest
+│   └── marketplace.json     # Marketplace configuration
 ├── skills/
 │   └── ios-mobile-designer/
-│       ├── SKILL.md         # Main skill instructions (~34KB)
-│       ├── references/      # Additional references
-│       └── scripts/         # Utility scripts
+│       └── SKILL.md         # Main skill instructions (~34KB)
+├── demo/
+│   └── *.html               # Interactive HTML demos
 ├── .gitignore
 ├── LICENSE
 └── README.md
