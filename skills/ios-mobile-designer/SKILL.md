@@ -9,6 +9,56 @@ Design professional iOS applications following Apple Human Interface Guidelines 
 
 ---
 
+## Design Philosophy: Beyond Specifications
+
+> "Following HIG makes your app feel native. Breaking rules intentionally makes it memorable."
+
+### The Intentionality Principle
+Every design decision must be **intentional**, not default. Before using any component or pattern, ask:
+- Why this element and not another?
+- What emotion should this screen evoke?
+- How does this reinforce the app's personality?
+
+### Creating Distinctive Apps Within HIG
+HIG provides the grammar; your app provides the voice. Ways to stand out:
+
+1. **Custom Color Palettes**: Don't just use systemBlue. Create a distinctive accent that becomes your signature while maintaining semantic colors for system UI.
+
+2. **Typographic Personality**: SF Pro is the base, but weight, tracking, and case variations create character:
+   - ALL CAPS with wide tracking → Premium/Luxury
+   - Rounded design with medium weight → Friendly/Approachable
+   - Tight tracking, bold → Technical/Precise
+
+3. **Meaningful Motion**: Don't animate for animation's sake. Each motion should:
+   - Provide feedback (response to touch)
+   - Guide attention (what to look at next)
+   - Express personality (bouncy = playful, smooth = sophisticated)
+
+4. **Signature Interactions**: One memorable micro-interaction users associate with your app:
+   - Pull-to-refresh with custom animation
+   - Unique haptic patterns
+   - Distinctive transition between screens
+
+### Anti-Patterns: What NOT to Do
+
+❌ **Generic AI Design Symptoms:**
+- Using every Liquid Glass effect on every surface
+- Identical spacing everywhere (no visual rhythm)
+- Stock SF Symbols without customization
+- Blue accent color for everything
+- No empty states or loading states
+- Identical corner radius on all elements
+
+✅ **Instead:**
+- Glass effects on 2-3 key surfaces max
+- Varying spacing creates rhythm (tight grouping = related, wide = separate)
+- Customize SF Symbol colors, weights, and rendering modes
+- Choose accent colors that match brand personality
+- Design every state: empty, loading, error, success
+- Corner radius should vary: smaller for nested elements, larger for containers
+
+---
+
 ## Core Design Principles
 
 ### Clarity
