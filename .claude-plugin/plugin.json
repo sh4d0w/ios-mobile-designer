@@ -1,7 +1,7 @@
 {
   "name": "ios-mobile-designer",
-  "version": "1.0.0",
-  "description": "Design iOS apps following Apple HIG with Liquid Glass (iOS 26). Supports SwiftUI, React Native, and Flutter.",
+  "version": "2.0.0",
+  "description": "Premium iOS design following Apple HIG with Liquid Glass (iOS 26). Live Activities, Widgets, Physics animations, Haptic hierarchy. Flighty-level quality.",
   "author": {
     "name": "sh4d0w"
   }

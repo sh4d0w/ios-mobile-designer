@@ -1,14 +1,15 @@
 {
   "name": "sh4d0w-plugins",
-  "version": "1.0.0",
-  "description": "iOS Mobile Designer - Apple HIG with Liquid Glass (iOS 26)",
+  "version": "2.0.0",
+  "description": "iOS Mobile Designer - Premium Apple HIG with Liquid Glass (iOS 26)",
   "owner": {
     "name": "sh4d0w"
   },
   "plugins": [
     {
       "name": "ios-mobile-designer",
-      "description": "Design iOS apps following Apple HIG with Liquid Glass (iOS 26).",
+      "version": "2.0.0",
+      "description": "Premium iOS design with Live Activities, Widgets, Physics animations, Haptic hierarchy. Flighty-level quality.",
       "source": "./"
     }
   ]

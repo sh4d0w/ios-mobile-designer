@@ -1,5 +1,6 @@
 # iOS Mobile Designer
 
+[![Version](https://img.shields.io/badge/Version-2.0.0-green.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blueviolet)](https://claude.ai)
 [![iOS](https://img.shields.io/badge/iOS-26+-000000?logo=apple)](https://developer.apple.com/ios/)
@@ -7,7 +8,7 @@
 [![React Native](https://img.shields.io/badge/React%20Native-Supported-61DAFB?logo=react)](https://reactnative.dev/)
 [![Flutter](https://img.shields.io/badge/Flutter-Supported-02569B?logo=flutter)](https://flutter.dev/)
 
-A Claude Code skill for designing professional iOS applications following Apple's Human Interface Guidelines (HIG) with support for the new **Liquid Glass** design language (iOS 26).
+A Claude Code skill for designing **premium iOS applications** following Apple's Human Interface Guidelines (HIG) with support for **Liquid Glass** (iOS 26). Generates **Flighty-level** quality designs.
 
 <p align="center">
   <img src="https://developer.apple.com/design/human-interface-guidelines/images/intro/platforms/platform-iOS-intro_2x.png" alt="iOS Design" width="400">
@@ -15,12 +16,22 @@ A Claude Code skill for designing professional iOS applications following Apple'
 
 ## Features
 
+### Core Design
 - **Multi-Framework Support**: SwiftUI, React Native, and Flutter code examples
 - **Liquid Glass (iOS 26)**: Modern translucent, glass-like UI elements with refraction effects
 - **Adaptive Design**: iPhone and iPad layouts with size class awareness
 - **Accessibility First**: VoiceOver, Dynamic Type, color contrast, Reduce Motion
-- **Complete Component Library**: Navigation, forms, lists, buttons, sheets, and more
-- **Native Feel**: SF Symbols, semantic colors, spring animations
+
+### Premium Features (v2.0)
+- **Live Activities & Dynamic Island**: Flighty-style real-time updates
+- **Widgets**: All sizes, Lock Screen, StandBy, interactive (iOS 17+)
+- **Physics-Based Animations**: Spring presets, gesture-responsive, UIKit Dynamics
+- **Haptic Hierarchy System**: Strategic feedback (light → heavy)
+- **Data Visualization**: SwiftUI Charts, progress rings, real-time updates
+- **Empty States & Edge Cases**: Skeleton loading, error states, offline mode
+- **Premium Polish**: Shadow system, corner radius hierarchy, gradients
+- **Sound Design**: When and how to use audio feedback
+- **Context-Specific Design**: Travel, Finance, Health, Productivity patterns
 
 ## Installation
 
@@ -57,6 +68,23 @@ You can also use the plugin manager UI:
 /plugin
 ```
 Then navigate to **Marketplaces** tab and add `sh4d0w/ios-mobile-designer`.
+
+## Updating
+
+To update to the latest version:
+
+```bash
+# Uninstall current version
+/plugin uninstall ios-mobile-designer@sh4d0w-plugins
+
+# Refresh marketplace
+/plugin marketplace add sh4d0w/ios-mobile-designer
+
+# Reinstall
+/plugin install ios-mobile-designer@sh4d0w-plugins
+```
+
+Check [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## Usage
 
