@@ -12,6 +12,7 @@ Design professional iOS applications following Apple Human Interface Guidelines 
 ## Design Philosophy: Beyond Specifications
 
 > "Following HIG makes your app feel native. Breaking rules intentionally makes it memorable."
+> — The difference between good apps and Flighty-level apps
 
 ### The Intentionality Principle
 Every design decision must be **intentional**, not default. Before using any component or pattern, ask:
@@ -19,7 +20,185 @@ Every design decision must be **intentional**, not default. Before using any com
 - What emotion should this screen evoke?
 - How does this reinforce the app's personality?
 
+### The Flighty Principle: Data as Art
+
+> "Pack it, wrap it, put some color on it." — Flighty Design Team
+
+Premium apps don't just display data—they **transform** it into visual stories:
+
+**Progressive Disclosure**
+- Show **20%** of data by default (the essential)
+- Reveal **80%** on interaction (the detailed)
+- Surface should feel "calm and simple"
+- Depth available on demand
+
+**Information Hierarchy**
+```
+┌─────────────────────────────────┐
+│      PRIMARY METRIC             │  ← Largest, centered
+│         (42°F)                  │
+├─────────────────────────────────┤
+│  Supporting    │    Context     │  ← Smaller, peripheral
+│   (Feels 38°)  │   (Humidity)   │
+├─────────────────────────────────┤
+│     Tap for detailed forecast   │  ← On-demand depth
+└─────────────────────────────────┘
+```
+
+**What Flighty Does Differently:**
+- Prioritizes data above the fold ruthlessly
+- Uses airport signage conventions (familiar visual language)
+- Color encodes meaning (green = on time, red = delayed)
+- Animation reveals data progressively, not all at once
+
+### Physical Metaphor Grounding
+
+Every gesture should echo a real-world interaction. This creates intuitive, memorable UX.
+
+| App | Physical Metaphor | Implementation |
+|-----|-------------------|----------------|
+| Halide | Film camera | Swipe up/down = exposure dial |
+| Things 3 | Paper checklist | Dragging creates spatial meaning |
+| Apple Books | Physical book | Page curl, weight, texture |
+| Wallet | Leather wallet | Card stack, peek, slide |
+
+**How to Apply:**
+1. Identify your app's real-world equivalent
+2. Study how people interact with that object
+3. Map gestures to those physical actions
+4. Add appropriate haptic feedback (tactile confirmation)
+
+```swift
+// Camera-inspired exposure control (Halide-style)
+DragGesture(minimumDistance: 0)
+    .onChanged { value in
+        // Vertical drag = exposure adjustment
+        let delta = value.translation.height / 200
+        exposure = max(-2, min(2, exposure - delta))
+
+        // Haptic detent at neutral (0)
+        if abs(exposure) < 0.1 && previousExposure >= 0.1 {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
+    }
+```
+
+### Anticipatory Feedback
+
+Premium apps prepare users for what's coming **before** it happens.
+
+**Haptics on Press, Not Release:**
+```swift
+Button(action: performAction) {
+    Label("Delete", systemImage: "trash")
+}
+.simultaneousGesture(
+    DragGesture(minimumDistance: 0)
+        .onChanged { _ in
+            // Haptic BEFORE action completes
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+)
+```
+
+**Visual Preparation:**
+- Button scales down slightly on press (confirms touch registered)
+- Destructive actions show preview of consequence
+- Loading states appear instantly (not after delay)
+
+**The Apple Pay Pattern:**
+1. Face ID begins → Subtle haptic
+2. Authentication succeeds → Success haptic
+3. Payment processes → Reassuring vibration pattern
+4. Complete → Visual + haptic confirmation
+
+User feels confident at every step because feedback **anticipates** the next state.
+
+### Delight Budget
+
+Allocate **5-10%** of design effort to unexpected moments of joy.
+
+**Types of Delight:**
+| Type | Example | When to Use |
+|------|---------|-------------|
+| Seasonal | Carrot Weather's garden changes monthly | Repeat users notice |
+| Achievement | Confetti on goal completion | Milestone moments |
+| Easter Egg | Hidden animations on specific gestures | Power users discover |
+| Personality | Unique empty states with character | First impressions |
+| Sound | Satisfying "ding" on success | Task completion |
+
+**Rules for Delight:**
+- Never interrupt workflow
+- Respect Reduce Motion settings
+- Make it discoverable, not mandatory
+- Consistent with app personality
+
+```swift
+// Celebration on achievement (respects Reduce Motion)
+func celebrate() {
+    let generator = UINotificationFeedbackGenerator()
+    generator.notificationOccurred(.success)
+
+    if !UIAccessibility.isReduceMotionEnabled {
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+            showConfetti = true
+        }
+    }
+}
+```
+
+### Constraint-Based Design
+
+> "Limitations breed innovation." — Things 3 Design Philosophy
+
+The best designs emerge from **intentional constraints**:
+
+**One-Handed Design:**
+- All primary actions reachable with thumb
+- Critical buttons in bottom 1/3 of screen
+- Swipe gestures for common actions
+
+**The Magic Button Pattern (Things 3):**
+Instead of modal dialogs for "where to create?":
+- Tap = create in current context
+- Drag = position determines context
+- One interaction, infinite possibilities
+
+```swift
+// Magic button: tap or drag to create
+struct MagicAddButton: View {
+    @State private var dragLocation: CGPoint?
+
+    var body: some View {
+        Image(systemName: "plus.circle.fill")
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        dragLocation = value.location
+                        // Show drop zones as user drags
+                    }
+                    .onEnded { value in
+                        if let zone = dropZone(at: value.location) {
+                            createItem(in: zone)
+                        } else {
+                            createItem(in: .current)
+                        }
+                    }
+            )
+            .onTapGesture {
+                createItem(in: .current)
+            }
+    }
+}
+```
+
+**Information Density Constraint:**
+- Each screen answers ONE primary question
+- Secondary info available but not competing
+- If you need a legend, simplify the visualization
+
 ### Creating Distinctive Apps Within HIG
+
 HIG provides the grammar; your app provides the voice. Ways to stand out:
 
 1. **Custom Color Palettes**: Don't just use systemBlue. Create a distinctive accent that becomes your signature while maintaining semantic colors for system UI.
@@ -48,14 +227,22 @@ HIG provides the grammar; your app provides the voice. Ways to stand out:
 - Blue accent color for everything
 - No empty states or loading states
 - Identical corner radius on all elements
+- Timer-based animations (not gesture-responsive)
+- Haptics on release instead of press
+- All data shown at once (no progressive disclosure)
+- Same animation duration everywhere
 
-✅ **Instead:**
+✅ **Premium App Patterns:**
 - Glass effects on 2-3 key surfaces max
 - Varying spacing creates rhythm (tight grouping = related, wide = separate)
 - Customize SF Symbol colors, weights, and rendering modes
 - Choose accent colors that match brand personality
-- Design every state: empty, loading, error, success
-- Corner radius should vary: smaller for nested elements, larger for containers
+- Design every state: empty, loading, error, success, offline
+- Corner radius varies: smaller for nested elements, larger for containers
+- Animation velocity matches gesture velocity
+- Anticipatory haptics guide users
+- 20% data surface, 80% on-demand
+- Animation duration matches importance (quick for minor, slower for major)
 
 ---
 
@@ -177,6 +364,756 @@ class GlassCard extends StatelessWidget {
   }
 }
 ```
+
+---
+
+## Live Activities & Dynamic Island
+
+> "Flighty won Apple's Design Award for Live Activities." — This is the premium iOS differentiator.
+
+Live Activities let your app present real-time information on the Lock Screen and Dynamic Island without users opening the app.
+
+### When to Use Live Activities
+
+| Use Case | Good Fit | Bad Fit |
+|----------|----------|---------|
+| Flight tracking | ✅ Real-time status | |
+| Food delivery | ✅ Order progress | |
+| Sports scores | ✅ Live game updates | |
+| Workout | ✅ Active exercise | |
+| Weather alerts | ✅ Time-sensitive | |
+| Social media | | ❌ Not time-sensitive |
+| News | | ❌ Not urgent |
+| Shopping | | ❌ Unless delivery |
+
+### Dynamic Island States
+
+```
+┌──────────────────────────────────────────────┐
+│                                              │
+│   ●──────●      Compact (default)            │
+│   Leading Trailing                           │
+│                                              │
+├──────────────────────────────────────────────┤
+│                                              │
+│   ┌─────────────────────┐                    │
+│   │   Expanded View      │  Long press       │
+│   │   More details       │                   │
+│   └─────────────────────┘                    │
+│                                              │
+├──────────────────────────────────────────────┤
+│                                              │
+│        ●        Minimal (multiple)           │
+│                 When several activities      │
+│                                              │
+└──────────────────────────────────────────────┘
+```
+
+### Design Principles (Flighty-style)
+
+1. **Glanceability**: Users spend <1 second looking
+2. **Information Hierarchy**: Most critical info visible in compact
+3. **Familiar Conventions**: Use industry signage (airport boards, scoreboards)
+4. **Color as Data**: Green = good, Red = problem, Yellow = attention
+5. **Progress Visualization**: Rings, bars, or percentage—pick one
+
+### SwiftUI Implementation
+
+```swift
+import ActivityKit
+import WidgetKit
+
+// MARK: - Activity Attributes
+struct FlightActivityAttributes: ActivityAttributes {
+    // Static data (doesn't change)
+    let flightNumber: String
+    let departure: String
+    let arrival: String
+    let airline: String
+
+    // Dynamic data (updates)
+    struct ContentState: Codable, Hashable {
+        let progress: Double  // 0.0 to 1.0
+        let status: FlightStatus
+        let gate: String?
+        let departureTime: Date
+        let arrivalTime: Date
+        let delay: Int?  // minutes
+    }
+}
+
+enum FlightStatus: String, Codable {
+    case scheduled, boarding, departed, enRoute, landed, delayed, cancelled
+}
+
+// MARK: - Live Activity Widget
+struct FlightLiveActivity: Widget {
+    var body: some WidgetConfiguration {
+        ActivityConfiguration(for: FlightActivityAttributes.self) { context in
+            // Lock Screen view
+            LockScreenView(context: context)
+        } dynamicIsland: { context in
+            DynamicIsland {
+                // Expanded view (long press)
+                DynamicIslandExpandedRegion(.leading) {
+                    VStack(alignment: .leading) {
+                        Text(context.attributes.departure)
+                            .font(.headline)
+                        Text(context.state.departureTime, style: .time)
+                            .font(.caption)
+                    }
+                }
+                DynamicIslandExpandedRegion(.trailing) {
+                    VStack(alignment: .trailing) {
+                        Text(context.attributes.arrival)
+                            .font(.headline)
+                        Text(context.state.arrivalTime, style: .time)
+                            .font(.caption)
+                    }
+                }
+                DynamicIslandExpandedRegion(.center) {
+                    FlightProgressBar(progress: context.state.progress)
+                }
+                DynamicIslandExpandedRegion(.bottom) {
+                    HStack {
+                        StatusBadge(status: context.state.status)
+                        Spacer()
+                        if let gate = context.state.gate {
+                            Text("Gate \(gate)")
+                                .font(.caption)
+                        }
+                    }
+                }
+            } compactLeading: {
+                // Compact leading (always visible)
+                Image(systemName: "airplane")
+                    .foregroundStyle(statusColor(context.state.status))
+            } compactTrailing: {
+                // Compact trailing (always visible)
+                Text(context.state.arrivalTime, style: .timer)
+                    .font(.caption2)
+                    .monospacedDigit()
+            } minimal: {
+                // Minimal (when multiple activities)
+                Image(systemName: "airplane.circle.fill")
+                    .foregroundStyle(statusColor(context.state.status))
+            }
+        }
+    }
+
+    func statusColor(_ status: FlightStatus) -> Color {
+        switch status {
+        case .scheduled, .boarding: return .blue
+        case .departed, .enRoute: return .green
+        case .landed: return .green
+        case .delayed: return .orange
+        case .cancelled: return .red
+        }
+    }
+}
+
+// MARK: - Lock Screen View
+struct LockScreenView: View {
+    let context: ActivityViewContext<FlightActivityAttributes>
+
+    var body: some View {
+        HStack(spacing: 16) {
+            // Departure
+            VStack(alignment: .leading) {
+                Text(context.attributes.departure)
+                    .font(.title2.bold())
+                Text(context.state.departureTime, style: .time)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            // Progress
+            VStack {
+                FlightProgressBar(progress: context.state.progress)
+                    .frame(height: 4)
+                Image(systemName: "airplane")
+                    .font(.caption)
+            }
+            .frame(maxWidth: .infinity)
+
+            // Arrival
+            VStack(alignment: .trailing) {
+                Text(context.attributes.arrival)
+                    .font(.title2.bold())
+                Text(context.state.arrivalTime, style: .time)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+    }
+}
+
+// MARK: - Progress Bar (Flighty-style)
+struct FlightProgressBar: View {
+    let progress: Double
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                // Track
+                Capsule()
+                    .fill(.quaternary)
+
+                // Progress
+                Capsule()
+                    .fill(.blue.gradient)
+                    .frame(width: geo.size.width * progress)
+
+                // Airplane indicator
+                Image(systemName: "airplane")
+                    .font(.system(size: 10))
+                    .offset(x: geo.size.width * progress - 5)
+            }
+        }
+    }
+}
+
+// MARK: - Starting/Updating Activity
+class FlightActivityManager {
+    static let shared = FlightActivityManager()
+    private var currentActivity: Activity<FlightActivityAttributes>?
+
+    func startTracking(flight: Flight) async throws {
+        let attributes = FlightActivityAttributes(
+            flightNumber: flight.number,
+            departure: flight.departure,
+            arrival: flight.arrival,
+            airline: flight.airline
+        )
+
+        let initialState = FlightActivityAttributes.ContentState(
+            progress: 0,
+            status: .scheduled,
+            gate: flight.gate,
+            departureTime: flight.departureTime,
+            arrivalTime: flight.arrivalTime,
+            delay: nil
+        )
+
+        let content = ActivityContent(state: initialState, staleDate: nil)
+
+        currentActivity = try Activity.request(
+            attributes: attributes,
+            content: content,
+            pushType: .token  // For remote updates
+        )
+    }
+
+    func updateStatus(_ state: FlightActivityAttributes.ContentState) async {
+        let content = ActivityContent(state: state, staleDate: nil)
+        await currentActivity?.update(content)
+    }
+
+    func endActivity() async {
+        await currentActivity?.end(nil, dismissalPolicy: .immediate)
+    }
+}
+```
+
+### React Native Implementation
+
+```tsx
+// Note: Live Activities require native Swift code
+// Use a bridge module for React Native
+
+// Native Module (Swift)
+// FlightActivityModule.swift
+import ActivityKit
+
+@objc(FlightActivityModule)
+class FlightActivityModule: NSObject {
+    @objc
+    func startActivity(
+        _ flightNumber: String,
+        departure: String,
+        arrival: String,
+        resolver: @escaping RCTPromiseResolveBlock,
+        rejecter: @escaping RCTPromiseRejectBlock
+    ) {
+        Task {
+            do {
+                // Start activity using native code
+                let attributes = FlightActivityAttributes(
+                    flightNumber: flightNumber,
+                    departure: departure,
+                    arrival: arrival,
+                    airline: ""
+                )
+                // ... implementation
+                resolver(["success": true])
+            } catch {
+                rejecter("ERROR", error.localizedDescription, error)
+            }
+        }
+    }
+}
+
+// React Native usage
+import { NativeModules } from 'react-native';
+
+const { FlightActivityModule } = NativeModules;
+
+const startFlightTracking = async (flight) => {
+    try {
+        await FlightActivityModule.startActivity(
+            flight.number,
+            flight.departure,
+            flight.arrival
+        );
+    } catch (error) {
+        console.error('Failed to start Live Activity:', error);
+    }
+};
+```
+
+### Flutter Implementation
+
+```dart
+// Live Activities require platform channels to native Swift code
+
+// Method Channel setup
+import 'package:flutter/services.dart';
+
+class LiveActivityService {
+    static const _channel = MethodChannel('com.app/live_activity');
+
+    static Future<bool> startFlightActivity({
+        required String flightNumber,
+        required String departure,
+        required String arrival,
+        required DateTime departureTime,
+        required DateTime arrivalTime,
+    }) async {
+        try {
+            final result = await _channel.invokeMethod('startFlightActivity', {
+                'flightNumber': flightNumber,
+                'departure': departure,
+                'arrival': arrival,
+                'departureTime': departureTime.toIso8601String(),
+                'arrivalTime': arrivalTime.toIso8601String(),
+            });
+            return result == true;
+        } catch (e) {
+            print('Failed to start Live Activity: $e');
+            return false;
+        }
+    }
+
+    static Future<void> updateActivity({
+        required double progress,
+        required String status,
+        String? gate,
+    }) async {
+        await _channel.invokeMethod('updateActivity', {
+            'progress': progress,
+            'status': status,
+            'gate': gate,
+        });
+    }
+
+    static Future<void> endActivity() async {
+        await _channel.invokeMethod('endActivity');
+    }
+}
+
+// Native Swift handler (AppDelegate.swift)
+/*
+@UIApplicationMain
+@objc class AppDelegate: FlutterAppDelegate {
+    override func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+        let controller = window?.rootViewController as! FlutterViewController
+        let channel = FlutterMethodChannel(
+            name: "com.app/live_activity",
+            binaryMessenger: controller.binaryMessenger
+        )
+
+        channel.setMethodCallHandler { call, result in
+            switch call.method {
+            case "startFlightActivity":
+                // Handle start
+            case "updateActivity":
+                // Handle update
+            case "endActivity":
+                // Handle end
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        }
+
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+}
+*/
+```
+
+### Best Practices
+
+1. **Keep it Simple**: Compact view should be understandable in <1 second
+2. **Update Sparingly**: Don't update more than once per minute unless critical
+3. **Use Push Updates**: For real-time data, configure push notifications for activities
+4. **Respect Battery**: End activities when no longer relevant
+5. **Test All States**: Compact, expanded, minimal, and Lock Screen
+6. **Accessibility**: Ensure all text is readable with Dynamic Type
+
+---
+
+## Widgets
+
+> "The best widget is one you never have to open the app for."
+
+Widgets extend your app to the Home Screen, Lock Screen, and StandBy mode—providing glanceable information at a glance.
+
+### Widget Families & Sizes
+
+| Family | Size (pt) | Content Capacity | Best For |
+|--------|-----------|------------------|----------|
+| `systemSmall` | 169×169 | 1-2 data points | Quick status |
+| `systemMedium` | 360×169 | 3-4 data points | Moderate detail |
+| `systemLarge` | 360×376 | Full content | Rich information |
+| `systemExtraLarge` | iPad only | Maximum | Dashboards |
+| `accessoryCircular` | Lock Screen | Icon + number | Minimal glance |
+| `accessoryRectangular` | Lock Screen | 2-3 lines | Brief status |
+| `accessoryInline` | Lock Screen | Single line | Minimal text |
+
+### Design Principles
+
+1. **Glanceability**: User spends <3 seconds looking
+2. **Single Purpose**: Each widget answers ONE question
+3. **Tap Target**: Entire widget is tappable (deep link)
+4. **Timeliness**: Show relevant info for NOW
+5. **Personalization**: Support multiple configurations
+
+### Information Density by Size
+
+```
+┌─────────────────┐
+│  systemSmall    │
+│    42°          │  ← One hero metric
+│   Sunny         │  ← Supporting context
+└─────────────────┘
+
+┌───────────────────────────────────┐
+│  systemMedium                     │
+│    42°F         Today's High: 48° │
+│   Sunny         Rain at 3pm       │
+│   ☀️ ☀️ 🌧️ ☀️ ☀️ ☀️              │
+└───────────────────────────────────┘
+
+┌───────────────────────────────────┐
+│  systemLarge                      │
+│    San Francisco                  │
+│    42°F  Sunny                    │
+│                                   │
+│    Hourly: ☀️ ☀️ 🌧️ ☀️ ☀️ ☀️ ☀️ ☀️ │
+│            9  10 11 12 1  2  3  4 │
+│                                   │
+│    Weekly Forecast                │
+│    Mon  48°/32°  Sunny            │
+│    Tue  52°/35°  Cloudy           │
+│    Wed  45°/30°  Rain             │
+└───────────────────────────────────┘
+```
+
+### SwiftUI Implementation
+
+```swift
+import WidgetKit
+import SwiftUI
+
+// MARK: - Widget Configuration
+struct WeatherWidget: Widget {
+    let kind: String = "WeatherWidget"
+
+    var body: some WidgetConfiguration {
+        // Static widget (no user configuration)
+        StaticConfiguration(kind: kind, provider: WeatherProvider()) { entry in
+            WeatherWidgetView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
+        }
+        .configurationDisplayName("Weather")
+        .description("Current weather conditions.")
+        .supportedFamilies([
+            .systemSmall,
+            .systemMedium,
+            .systemLarge,
+            .accessoryCircular,
+            .accessoryRectangular,
+            .accessoryInline
+        ])
+    }
+}
+
+// Configurable widget (with user options)
+struct ConfigurableWeatherWidget: Widget {
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(
+            kind: "ConfigurableWeather",
+            intent: WeatherIntent.self,
+            provider: WeatherProvider()
+        ) { entry in
+            WeatherWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Weather")
+        .description("Choose your location.")
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+    }
+}
+
+// MARK: - Timeline Provider
+struct WeatherProvider: TimelineProvider {
+    func placeholder(in context: Context) -> WeatherEntry {
+        WeatherEntry(date: Date(), temperature: 72, condition: .sunny, location: "San Francisco")
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (WeatherEntry) -> Void) {
+        // For widget gallery preview
+        completion(placeholder(in: context))
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<WeatherEntry>) -> Void) {
+        Task {
+            let weather = await fetchWeather()
+            let entry = WeatherEntry(
+                date: Date(),
+                temperature: weather.temperature,
+                condition: weather.condition,
+                location: weather.location
+            )
+
+            // Update every 30 minutes
+            let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
+            let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+            completion(timeline)
+        }
+    }
+}
+
+// MARK: - Entry
+struct WeatherEntry: TimelineEntry {
+    let date: Date
+    let temperature: Int
+    let condition: WeatherCondition
+    let location: String
+}
+
+// MARK: - Widget Views (Size-Adaptive)
+struct WeatherWidgetView: View {
+    @Environment(\.widgetFamily) var family
+    let entry: WeatherEntry
+
+    var body: some View {
+        switch family {
+        case .systemSmall:
+            SmallWeatherView(entry: entry)
+        case .systemMedium:
+            MediumWeatherView(entry: entry)
+        case .systemLarge:
+            LargeWeatherView(entry: entry)
+        case .accessoryCircular:
+            CircularWeatherView(entry: entry)
+        case .accessoryRectangular:
+            RectangularWeatherView(entry: entry)
+        case .accessoryInline:
+            InlineWeatherView(entry: entry)
+        default:
+            SmallWeatherView(entry: entry)
+        }
+    }
+}
+
+// Small widget
+struct SmallWeatherView: View {
+    let entry: WeatherEntry
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(entry.location)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Text("\(entry.temperature)°")
+                .font(.system(size: 48, weight: .medium, design: .rounded))
+
+            Text(entry.condition.description)
+                .font(.subheadline)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .widgetURL(URL(string: "weather://location/\(entry.location)"))
+    }
+}
+
+// Lock Screen circular
+struct CircularWeatherView: View {
+    let entry: WeatherEntry
+
+    var body: some View {
+        ZStack {
+            AccessoryWidgetBackground()
+            VStack(spacing: 2) {
+                Image(systemName: entry.condition.icon)
+                    .font(.system(size: 14))
+                Text("\(entry.temperature)°")
+                    .font(.system(size: 16, weight: .semibold))
+            }
+        }
+    }
+}
+
+// Lock Screen rectangular
+struct RectangularWeatherView: View {
+    let entry: WeatherEntry
+
+    var body: some View {
+        HStack {
+            Image(systemName: entry.condition.icon)
+                .font(.title2)
+            VStack(alignment: .leading) {
+                Text("\(entry.temperature)°")
+                    .font(.headline)
+                Text(entry.condition.description)
+                    .font(.caption)
+            }
+        }
+    }
+}
+
+// Lock Screen inline
+struct InlineWeatherView: View {
+    let entry: WeatherEntry
+
+    var body: some View {
+        HStack {
+            Image(systemName: entry.condition.icon)
+            Text("\(entry.temperature)° \(entry.condition.description)")
+        }
+    }
+}
+```
+
+### Interactive Widgets (iOS 17+)
+
+```swift
+import AppIntents
+
+// MARK: - Interactive Button
+struct ToggleIntent: AppIntent {
+    static var title: LocalizedStringResource = "Toggle Task"
+
+    @Parameter(title: "Task ID")
+    var taskId: String
+
+    func perform() async throws -> some IntentResult {
+        // Perform action
+        TaskManager.shared.toggle(taskId: taskId)
+        return .result()
+    }
+}
+
+// Widget with interactive button
+struct TaskWidgetView: View {
+    let task: TaskEntry
+
+    var body: some View {
+        HStack {
+            Button(intent: ToggleIntent(taskId: task.id)) {
+                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(task.isCompleted ? .green : .secondary)
+            }
+            .buttonStyle(.plain)
+
+            Text(task.title)
+                .strikethrough(task.isCompleted)
+        }
+    }
+}
+```
+
+### StandBy Mode
+
+```swift
+// StandBy-optimized widget
+struct StandByWeatherView: View {
+    @Environment(\.isLuminanceReduced) var isLuminanceReduced
+    let entry: WeatherEntry
+
+    var body: some View {
+        VStack {
+            Text("\(entry.temperature)°")
+                .font(.system(size: 120, weight: .thin, design: .rounded))
+                .foregroundStyle(isLuminanceReduced ? .red : .primary)
+
+            Image(systemName: entry.condition.icon)
+                .font(.system(size: 48))
+        }
+        // Reduce brightness when Always On Display
+        .opacity(isLuminanceReduced ? 0.4 : 1.0)
+    }
+}
+```
+
+### React Native & Flutter
+
+Widgets require native implementation. Use platform channels:
+
+```tsx
+// React Native - widgetkit-manager
+import WidgetKit from 'react-native-widgetkit';
+
+// Update widget data
+WidgetKit.setItem('weatherData', JSON.stringify({
+    temperature: 72,
+    condition: 'sunny',
+    location: 'San Francisco'
+}), 'group.com.app.weather');
+
+// Reload widget
+WidgetKit.reloadAllTimelines();
+```
+
+```dart
+// Flutter - home_widget package
+import 'package:home_widget/home_widget.dart';
+
+class WidgetService {
+    static const appGroupId = 'group.com.app.weather';
+
+    static Future<void> updateWidget({
+        required int temperature,
+        required String condition,
+    }) async {
+        await HomeWidget.saveWidgetData('temperature', temperature);
+        await HomeWidget.saveWidgetData('condition', condition);
+        await HomeWidget.updateWidget(
+            name: 'WeatherWidget',
+            iOSName: 'WeatherWidget',
+        );
+    }
+}
+```
+
+### Widget Best Practices
+
+| Do | Don't |
+|----|-------|
+| Update on meaningful data change | Update every second |
+| Use semantic colors | Hardcode light/dark colors |
+| Deep link to relevant content | Deep link to app home |
+| Show current/relevant data | Show stale information |
+| Design for all sizes separately | Shrink large design for small |
+| Support accessibility | Ignore Dynamic Type |
+| Use widget-specific backgrounds | Use solid opaque backgrounds |
 
 ---
 
@@ -1190,60 +2127,269 @@ All interactive elements must have a minimum tappable area of 44x44 points, even
 - **Rotation**: Rotate content
 - **Pan/Drag**: Move, scroll
 
-### Haptic Feedback
+### Haptic Hierarchy System
 
-#### SwiftUI
+> "Every vibration must be earned." — Premium haptic design principle
+
+Haptics are not decoration—they're **communication**. Premium apps use a strategic hierarchy where the weight of feedback matches the importance of the action.
+
+#### The Haptic Hierarchy
+
+| Action Type | Haptic Style | Weight | When to Use |
+|-------------|--------------|--------|-------------|
+| **Discovery** | Selection | Lightest | Scrolling through options, hovering |
+| **Selection** | Light Impact | Light | Choosing an item, toggling |
+| **Confirmation** | Medium Impact | Medium | Button press, action confirmed |
+| **Success** | Notification Success | Medium+ | Task completed, payment processed |
+| **Warning** | Notification Warning | Heavy | Approaching limit, irreversible action |
+| **Error/Destructive** | Heavy + Error | Heaviest | Delete, failure, critical alert |
+| **Payment/Critical** | Custom Pattern | Reassuring | Financial transactions |
+
+#### The Golden Rules
+
+1. **Context Determines Weight**: Same action in different contexts = different haptics
+   - Delete in list (swipe) = Medium
+   - Delete in detail view = Heavy (more consequential)
+
+2. **Anticipatory Haptics**: Fire on press, not release
+   - User knows touch was registered
+   - Builds confidence before action completes
+
+3. **Detent Feedback**: Mark meaningful positions
+   - Slider reaching min/max
+   - Scroll snapping to position
+   - Value returning to default
+
+4. **Never Gratuitous**: If removing a haptic doesn't hurt UX, remove it
+
+#### SwiftUI Implementation
 
 ```swift
-// Impact feedback
-let impact = UIImpactFeedbackGenerator(style: .medium)
-impact.impactOccurred()
+// MARK: - Haptic Manager (Premium Pattern)
+class HapticManager {
+    static let shared = HapticManager()
 
-// Selection feedback
-let selection = UISelectionFeedbackGenerator()
-selection.selectionChanged()
+    private let lightImpact = UIImpactFeedbackGenerator(style: .light)
+    private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
+    private let heavyImpact = UIImpactFeedbackGenerator(style: .heavy)
+    private let selection = UISelectionFeedbackGenerator()
+    private let notification = UINotificationFeedbackGenerator()
 
-// Notification feedback
-let notification = UINotificationFeedbackGenerator()
-notification.notificationOccurred(.success) // .warning, .error
+    // Prepare generators for instant response
+    func prepare() {
+        lightImpact.prepare()
+        mediumImpact.prepare()
+        selection.prepare()
+    }
 
-// Sensory feedback (iOS 17+)
-Button("Tap") { }
-    .sensoryFeedback(.impact(weight: .medium), trigger: tapped)
+    // Discovery: scrolling, hovering
+    func discovery() {
+        selection.selectionChanged()
+    }
+
+    // Selection: choosing item
+    func select() {
+        lightImpact.impactOccurred()
+    }
+
+    // Confirmation: action confirmed
+    func confirm() {
+        mediumImpact.impactOccurred()
+    }
+
+    // Success: task completed
+    func success() {
+        notification.notificationOccurred(.success)
+    }
+
+    // Warning: approaching limit
+    func warning() {
+        notification.notificationOccurred(.warning)
+    }
+
+    // Error: something went wrong
+    func error() {
+        notification.notificationOccurred(.error)
+    }
+
+    // Destructive: delete, irreversible
+    func destructive() {
+        heavyImpact.impactOccurred()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.notification.notificationOccurred(.error)
+        }
+    }
+
+    // Payment: reassuring pattern
+    func payment() {
+        mediumImpact.impactOccurred()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            self.mediumImpact.impactOccurred(intensity: 0.7)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.notification.notificationOccurred(.success)
+        }
+    }
+
+    // Detent: slider/scroll snapping
+    func detent() {
+        lightImpact.impactOccurred(intensity: 0.5)
+    }
+}
+
+// Usage in SwiftUI
+Button("Delete") {
+    HapticManager.shared.destructive()
+    deleteItem()
+}
+
+// iOS 17+ Sensory Feedback
+Button("Confirm") { }
+    .sensoryFeedback(.impact(weight: .medium), trigger: isConfirmed)
+
+// Anticipatory haptic (on press, not release)
+struct AnticipatorButton: View {
+    var body: some View {
+        Text("Press Me")
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        HapticManager.shared.select()
+                    }
+            )
+    }
+}
 ```
 
-#### React Native
+#### React Native Implementation
 
 ```tsx
 import * as Haptics from 'expo-haptics';
 
-// Impact
-Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+// Haptic Manager for React Native
+const HapticManager = {
+    // Discovery: scrolling
+    discovery: () => Haptics.selectionAsync(),
 
-// Selection
-Haptics.selectionAsync();
+    // Selection: item chosen
+    select: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light),
 
-// Notification
-Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // Confirmation: action confirmed
+    confirm: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium),
+
+    // Success: task completed
+    success: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
+
+    // Warning
+    warning: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning),
+
+    // Error
+    error: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error),
+
+    // Destructive: heavy + error
+    destructive: async () => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        setTimeout(() => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        }, 100);
+    },
+
+    // Payment: reassuring pattern
+    payment: async () => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 150);
+        setTimeout(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success), 300);
+    },
+};
+
+// Anticipatory haptic button
+const AnticipatorButton = ({ onPress, children }) => (
+    <Pressable
+        onPressIn={() => HapticManager.select()}  // On press, not release
+        onPress={onPress}
+    >
+        {children}
+    </Pressable>
+);
 ```
 
-#### Flutter
+#### Flutter Implementation
 
 ```dart
 import 'package:flutter/services.dart';
 
-// Light impact
-HapticFeedback.lightImpact();
+// Haptic Manager for Flutter
+class HapticManager {
+    // Discovery
+    static void discovery() => HapticFeedback.selectionClick();
 
-// Medium impact
-HapticFeedback.mediumImpact();
+    // Selection
+    static void select() => HapticFeedback.lightImpact();
 
-// Heavy impact
-HapticFeedback.heavyImpact();
+    // Confirmation
+    static void confirm() => HapticFeedback.mediumImpact();
 
-// Selection click
-HapticFeedback.selectionClick();
+    // Success (vibrate pattern)
+    static void success() => HapticFeedback.mediumImpact();
+
+    // Warning
+    static void warning() => HapticFeedback.heavyImpact();
+
+    // Error
+    static void error() => HapticFeedback.heavyImpact();
+
+    // Destructive
+    static Future<void> destructive() async {
+        HapticFeedback.heavyImpact();
+        await Future.delayed(Duration(milliseconds: 100));
+        HapticFeedback.heavyImpact();
+    }
+
+    // Payment pattern
+    static Future<void> payment() async {
+        HapticFeedback.mediumImpact();
+        await Future.delayed(Duration(milliseconds: 150));
+        HapticFeedback.lightImpact();
+        await Future.delayed(Duration(milliseconds: 150));
+        HapticFeedback.mediumImpact();
+    }
+
+    // Detent
+    static void detent() => HapticFeedback.selectionClick();
+}
+
+// Anticipatory haptic button
+class AnticipatorButton extends StatelessWidget {
+    final VoidCallback onPressed;
+    final Widget child;
+
+    const AnticipatorButton({required this.onPressed, required this.child});
+
+    @override
+    Widget build(BuildContext context) {
+        return GestureDetector(
+            onTapDown: (_) => HapticManager.select(),  // On press
+            onTap: onPressed,
+            child: child,
+        );
+    }
+}
 ```
+
+#### Haptic Patterns by Context
+
+| Context | Interaction | Recommended Pattern |
+|---------|-------------|---------------------|
+| List scrolling | Each item passes | `discovery()` (debounced) |
+| Toggle switch | State change | `select()` |
+| Button press | Confirmation | `confirm()` on press |
+| Form submit | Success/failure | `success()` or `error()` |
+| Pull to refresh | Threshold reached | `detent()` |
+| Swipe delete | Delete executed | `destructive()` |
+| Payment | Transaction complete | `payment()` pattern |
+| Slider | Reaches min/max | `detent()` |
+| Tab switch | Tab selected | `select()` |
+| Long press menu | Menu appears | `confirm()` |
 
 ---
 
@@ -1407,86 +2553,406 @@ AnimatedContainer(
 
 ## Animation & Motion
 
-### Principles
-- **Purpose**: Animation should have meaning and guide attention
-- **Responsiveness**: Immediate response to user input
-- **Continuity**: Maintain context during transitions
-- **Subtlety**: Avoid excessive or distracting motion
+> "Animation is not about making things move. It's about making things feel alive."
+
+### The 200-500ms Sweet Spot
+
+Animation duration must be **intentional**:
+
+| Duration | Perception | Use Case |
+|----------|------------|----------|
+| < 100ms | Instant | Button feedback, selection |
+| 100-200ms | Snappy | Tab switches, toggles |
+| 200-300ms | Responsive | Sheets, cards, list items |
+| 300-500ms | Smooth | Page transitions, reveals |
+| > 500ms | Cinematic | Onboarding, celebrations |
+
+**Research finding:** Physics-based animations boost user satisfaction by **24%** compared to linear/eased animations.
+
+### Core Principles
+- **Purpose**: Every animation answers "why is this moving?"
+- **Responsiveness**: Animation velocity matches gesture velocity
+- **Continuity**: Maintain context, never lose the user
+- **Interruptibility**: User can always cancel or redirect
+- **Subtlety**: 80% of animations should be barely noticed
+
+### Physics-Based Animations
+
+Premium apps feel alive because they use real physics, not timers.
+
+#### UIKit Dynamics (for Complex Physics)
+
+```swift
+import UIKit
+
+class PhysicsView: UIView {
+    private var animator: UIDynamicAnimator!
+    private var gravity: UIGravityBehavior!
+    private var collision: UICollisionBehavior!
+    private var attachment: UIAttachmentBehavior!
+
+    func setupPhysics(for element: UIView) {
+        animator = UIDynamicAnimator(referenceView: self)
+
+        // Gravity - elements fall naturally
+        gravity = UIGravityBehavior(items: [element])
+        gravity.magnitude = 0.5
+
+        // Collision - bounce off boundaries
+        collision = UICollisionBehavior(items: [element])
+        collision.translatesReferenceBoundsIntoBoundary = true
+
+        // Attachment - rubber band effect
+        attachment = UIAttachmentBehavior(
+            item: element,
+            attachedToAnchor: element.center
+        )
+        attachment.frequency = 3.0  // Oscillation speed
+        attachment.damping = 0.3    // How quickly it settles
+        attachment.length = 0       // Resting distance
+
+        animator.addBehavior(gravity)
+        animator.addBehavior(collision)
+        animator.addBehavior(attachment)
+    }
+
+    // Drag with physics response
+    func handleDrag(_ gesture: UIPanGestureRecognizer, element: UIView) {
+        let location = gesture.location(in: self)
+
+        switch gesture.state {
+        case .began:
+            attachment.anchorPoint = location
+        case .changed:
+            attachment.anchorPoint = location
+        case .ended:
+            // Element snaps back with physics
+            attachment.anchorPoint = element.center
+            let velocity = gesture.velocity(in: self)
+            let push = UIPushBehavior(items: [element], mode: .instantaneous)
+            push.pushDirection = CGVector(dx: velocity.x / 1000, dy: velocity.y / 1000)
+            animator.addBehavior(push)
+        default:
+            break
+        }
+    }
+}
+```
 
 ### Spring Animations
 
-#### SwiftUI
+#### SwiftUI Spring Presets
 
 ```swift
-// Default spring
-withAnimation(.spring()) {
-    isExpanded.toggle()
+// MARK: - Animation Presets (Premium)
+extension Animation {
+    // Quick feedback (buttons, toggles)
+    static let quickResponse = Animation.spring(response: 0.3, dampingFraction: 0.7)
+
+    // Standard interaction (cards, sheets)
+    static let standard = Animation.spring(response: 0.4, dampingFraction: 0.75)
+
+    // Bouncy (playful apps)
+    static let bouncy = Animation.spring(response: 0.5, dampingFraction: 0.5)
+
+    // Smooth (premium/luxury apps)
+    static let smooth = Animation.spring(response: 0.6, dampingFraction: 0.9)
+
+    // Snappy (quick actions)
+    static let snappy = Animation.spring(response: 0.25, dampingFraction: 0.8)
 }
 
-// Custom spring
-withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-    // Animate
+// Usage
+withAnimation(.quickResponse) {
+    isPressed = true
 }
 
-// Bouncy
-withAnimation(.spring(response: 0.5, dampingFraction: 0.5, blendDuration: 0.5)) {
-    // Bouncy animation
-}
-
-// Smooth (no bounce)
 withAnimation(.smooth) {
-    // Smooth transition
+    showDetail = true
 }
+```
+
+#### The Spring Formula Explained
+
+```swift
+// response: How long to reach target (0.2 = fast, 0.8 = slow)
+// dampingFraction: How much bounce (0.5 = bouncy, 1.0 = no bounce)
+// blendDuration: How to blend with other animations
+
+Animation.spring(
+    response: 0.4,        // 400ms to settle
+    dampingFraction: 0.7, // Slight bounce
+    blendDuration: 0.25   // Blend over 250ms
+)
+
+// Mass-stiffness-damping model (more control)
+Animation.interpolatingSpring(
+    mass: 1.0,       // Heavier = slower
+    stiffness: 150,  // Higher = snappier
+    damping: 15,     // Higher = less bounce
+    initialVelocity: 0
+)
 ```
 
 #### React Native
 
 ```tsx
-import Animated, { withSpring, withTiming } from 'react-native-reanimated';
+import Animated, {
+    withSpring,
+    withTiming,
+    useAnimatedStyle,
+    useSharedValue,
+    runOnJS,
+} from 'react-native-reanimated';
 
-// Spring animation
-const animatedStyle = useAnimatedStyle(() => ({
-  transform: [
-    {
-      scale: withSpring(isPressed ? 0.95 : 1, {
-        damping: 15,
-        stiffness: 150,
-      }),
-    },
-  ],
-}));
+// Spring presets
+const SpringPresets = {
+    quickResponse: { damping: 20, stiffness: 300 },
+    standard: { damping: 15, stiffness: 150 },
+    bouncy: { damping: 10, stiffness: 100 },
+    smooth: { damping: 20, stiffness: 90 },
+    snappy: { damping: 25, stiffness: 400 },
+};
 
-// Timing (for non-spring)
-withTiming(targetValue, {
-  duration: 300,
-  easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-});
+// Gesture-responsive animation
+const GestureCard = () => {
+    const translateX = useSharedValue(0);
+    const scale = useSharedValue(1);
+
+    const gesture = Gesture.Pan()
+        .onStart(() => {
+            scale.value = withSpring(0.98, SpringPresets.quickResponse);
+        })
+        .onUpdate((e) => {
+            // Animation follows finger exactly
+            translateX.value = e.translationX;
+        })
+        .onEnd((e) => {
+            // Velocity-aware snap back
+            translateX.value = withSpring(0, {
+                ...SpringPresets.standard,
+                velocity: e.velocityX,  // Preserve gesture momentum
+            });
+            scale.value = withSpring(1, SpringPresets.quickResponse);
+        });
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [
+            { translateX: translateX.value },
+            { scale: scale.value },
+        ],
+    }));
+
+    return (
+        <GestureDetector gesture={gesture}>
+            <Animated.View style={[styles.card, animatedStyle]} />
+        </GestureDetector>
+    );
+};
 ```
 
 #### Flutter
 
 ```dart
-// Spring simulation
-final spring = SpringSimulation(
-  SpringDescription(
-    mass: 1,
-    stiffness: 150,
-    damping: 15,
-  ),
-  0, // start
-  1, // end
-  0, // velocity
-);
+// Spring presets
+class SpringPresets {
+    static final quickResponse = SpringDescription(
+        mass: 1, stiffness: 300, damping: 20,
+    );
+    static final standard = SpringDescription(
+        mass: 1, stiffness: 150, damping: 15,
+    );
+    static final bouncy = SpringDescription(
+        mass: 1, stiffness: 100, damping: 10,
+    );
+    static final smooth = SpringDescription(
+        mass: 1, stiffness: 90, damping: 20,
+    );
+}
 
-// Curve-based
-AnimatedContainer(
-  duration: Duration(milliseconds: 300),
-  curve: Curves.easeInOut,
-  // ...
-);
+// Physics-based animation controller
+class PhysicsCard extends StatefulWidget {
+    @override
+    _PhysicsCardState createState() => _PhysicsCardState();
+}
 
-// iOS-style curves
-curve: Curves.easeInOutCubicEmphasized // Similar to iOS spring
+class _PhysicsCardState extends State<PhysicsCard>
+    with SingleTickerProviderStateMixin {
+    late AnimationController _controller;
+    late Animation<Offset> _animation;
+    Offset _dragOffset = Offset.zero;
+
+    @override
+    void initState() {
+        super.initState();
+        _controller = AnimationController(vsync: this);
+    }
+
+    void _onPanUpdate(DragUpdateDetails details) {
+        setState(() {
+            _dragOffset += details.delta;
+        });
+    }
+
+    void _onPanEnd(DragEndDetails details) {
+        // Spring back with velocity
+        final spring = SpringSimulation(
+            SpringPresets.standard,
+            _dragOffset.distance,
+            0,
+            details.velocity.pixelsPerSecond.distance / 1000,
+        );
+
+        _controller.animateWith(spring);
+    }
+
+    @override
+    Widget build(BuildContext context) {
+        return GestureDetector(
+            onPanUpdate: _onPanUpdate,
+            onPanEnd: _onPanEnd,
+            child: Transform.translate(
+                offset: _dragOffset,
+                child: Card(child: /* content */),
+            ),
+        );
+    }
+}
+```
+
+### Gesture-Responsive Animations
+
+The key to premium feel: **animation velocity matches gesture velocity**.
+
+#### SwiftUI
+
+```swift
+struct GestureResponsiveCard: View {
+    @State private var offset: CGSize = .zero
+    @State private var isDragging = false
+    @GestureState private var dragVelocity: CGSize = .zero
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 20)
+            .fill(.ultraThinMaterial)
+            .frame(width: 300, height: 200)
+            .offset(offset)
+            .scaleEffect(isDragging ? 0.98 : 1)
+            .gesture(
+                DragGesture()
+                    .updating($dragVelocity) { value, state, _ in
+                        state = value.velocity
+                    }
+                    .onChanged { value in
+                        isDragging = true
+                        // Direct 1:1 tracking
+                        offset = value.translation
+                    }
+                    .onEnded { value in
+                        isDragging = false
+                        // Animate with velocity for natural momentum
+                        withAnimation(.interpolatingSpring(
+                            mass: 1,
+                            stiffness: 100,
+                            damping: 15,
+                            initialVelocity: sqrt(
+                                pow(value.velocity.width, 2) +
+                                pow(value.velocity.height, 2)
+                            ) / 1000
+                        )) {
+                            offset = .zero
+                        }
+                    }
+            )
+            .animation(.quickResponse, value: isDragging)
+    }
+}
+```
+
+### State Transition Patterns
+
+#### Button Press Animation
+
+```swift
+// Premium button with scale + haptic
+struct PremiumButton: View {
+    let title: String
+    let action: () -> Void
+
+    @State private var isPressed = false
+
+    var body: some View {
+        Text(title)
+            .font(.headline)
+            .foregroundStyle(.white)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+            .background(Color.accentColor)
+            .clipShape(Capsule())
+            .scaleEffect(isPressed ? 0.96 : 1)
+            .opacity(isPressed ? 0.9 : 1)
+            .animation(.quickResponse, value: isPressed)
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        if !isPressed {
+                            isPressed = true
+                            HapticManager.shared.select()
+                        }
+                    }
+                    .onEnded { _ in
+                        isPressed = false
+                        action()
+                        HapticManager.shared.confirm()
+                    }
+            )
+    }
+}
+```
+
+#### Loading → Success Celebration
+
+```swift
+struct LoadingSuccessView: View {
+    @State private var state: LoadState = .idle
+
+    enum LoadState {
+        case idle, loading, success, error
+    }
+
+    var body: some View {
+        ZStack {
+            switch state {
+            case .idle:
+                Button("Submit") {
+                    withAnimation(.standard) { state = .loading }
+                    performAction()
+                }
+            case .loading:
+                ProgressView()
+                    .transition(.scale.combined(with: .opacity))
+            case .success:
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.green)
+                    .transition(.scale.combined(with: .opacity))
+                    .onAppear {
+                        HapticManager.shared.success()
+                        // Optional: confetti animation
+                    }
+            case .error:
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.red)
+                    .transition(.scale.combined(with: .opacity))
+                    .onAppear {
+                        HapticManager.shared.error()
+                    }
+            }
+        }
+        .animation(.bouncy, value: state)
+    }
+}
 ```
 
 ### Page Transitions
@@ -1509,6 +2975,9 @@ NavigationStack {
 
 Image("photo")
     .matchedGeometryEffect(id: "photo", in: animation)
+
+// Full custom navigation transition (iOS 18+)
+.navigationTransition(.zoom(sourceID: "photo", in: animation))
 ```
 
 #### React Native
@@ -1523,6 +2992,16 @@ import { SharedElement } from 'react-navigation-shared-element';
 <SharedElement id="photo">
   <Image source={photo} />
 </SharedElement>
+
+// Custom screen transition
+<Stack.Screen
+    options={{
+        animation: 'slide_from_right',
+        animationDuration: 300,
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+    }}
+/>
 ```
 
 #### Flutter
@@ -1530,32 +3009,53 @@ import { SharedElement } from 'react-navigation-shared-element';
 ```dart
 // Hero animation (shared element)
 Hero(
-  tag: 'photo',
-  child: Image.asset('photo.png'),
+    tag: 'photo',
+    child: Image.asset('photo.png'),
 );
 
 // Page route with Cupertino transition
 CupertinoPageRoute(
-  builder: (context) => DetailScreen(),
+    builder: (context) => DetailScreen(),
 );
 
 // Custom page transition
 PageRouteBuilder(
-  pageBuilder: (context, animation, secondaryAnimation) => Screen(),
-  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    return SlideTransition(
-      position: Tween<Offset>(
-        begin: Offset(1, 0),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeInOutCubicEmphasized,
-      )),
-      child: child,
-    );
-  },
+    pageBuilder: (context, animation, secondaryAnimation) => Screen(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+            position: Tween<Offset>(
+                begin: Offset(1, 0),
+                end: Offset.zero,
+            ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOutCubicEmphasized,
+            )),
+            child: child,
+        );
+    },
 );
 ```
+
+### Micro-Interaction Patterns
+
+| Interaction | Animation | Duration | Haptic |
+|-------------|-----------|----------|--------|
+| Button press | Scale 0.96 | 100ms | Light |
+| Toggle | Spring position | 200ms | Selection |
+| Card expand | Scale + fade | 300ms | Medium |
+| Pull refresh | Threshold snap | - | Detent |
+| Swipe delete | Slide + fade | 250ms | Medium |
+| Success | Scale up + bounce | 400ms | Success |
+| Tab switch | Cross-fade | 150ms | Selection |
+| Sheet present | Slide up | 350ms | Medium |
+
+### Animation Performance Tips
+
+1. **Prefer transform properties**: `scale`, `rotation`, `translation` are GPU-accelerated
+2. **Avoid animating layout**: Width/height changes trigger layout recalculation
+3. **Use `drawingGroup()`** in SwiftUI for complex view hierarchies
+4. **Reduce overdraw**: Transparent overlapping views hurt performance
+5. **Profile with Instruments**: Always test on device, not simulator
 
 ---
 
@@ -1626,6 +3126,891 @@ Icon(
 
 ---
 
+## Data Visualization
+
+> "Each data point tells a story; visualization shouldn't require a legend."
+
+### Progressive Disclosure Pattern
+
+Show **20%** by default, reveal **80%** on interaction:
+
+```
+┌─────────────────────────────────────┐
+│ Level 1: Glance (visible)           │
+│   "Your heart rate: 72 bpm"         │
+├─────────────────────────────────────┤
+│ Level 2: Tap (revealed)             │
+│   "Range today: 58-98 bpm"          │
+│   "Resting avg: 62 bpm"             │
+├─────────────────────────────────────┤
+│ Level 3: Drill-down (new screen)    │
+│   Full history, comparisons,        │
+│   export options                    │
+└─────────────────────────────────────┘
+```
+
+### Information Hierarchy
+
+```swift
+// Premium data card structure
+struct DataCard: View {
+    let primaryValue: String      // Largest, hero position
+    let primaryLabel: String
+    let secondaryValue: String?   // Supporting context
+    let trend: Trend?             // Up/down/stable indicator
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Primary: The ONE thing user needs
+            Text(primaryValue)
+                .font(.system(size: 56, weight: .medium, design: .rounded))
+                .monospacedDigit()
+
+            Text(primaryLabel)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            // Secondary: Supporting context
+            if let secondary = secondaryValue {
+                HStack {
+                    if let trend = trend {
+                        Image(systemName: trend.icon)
+                            .foregroundStyle(trend.color)
+                    }
+                    Text(secondary)
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
+    }
+}
+```
+
+### SwiftUI Charts
+
+```swift
+import Charts
+
+// MARK: - Line Chart (Trends)
+struct HeartRateChart: View {
+    let data: [HeartRateReading]
+
+    var body: some View {
+        Chart(data) { reading in
+            LineMark(
+                x: .value("Time", reading.time),
+                y: .value("BPM", reading.bpm)
+            )
+            .interpolationMethod(.catmullRom)  // Smooth curves
+            .foregroundStyle(.red.gradient)
+
+            // Area fill for emphasis
+            AreaMark(
+                x: .value("Time", reading.time),
+                y: .value("BPM", reading.bpm)
+            )
+            .foregroundStyle(.red.opacity(0.1).gradient)
+        }
+        .chartXAxis {
+            AxisMarks(values: .stride(by: .hour, count: 3)) { value in
+                AxisValueLabel(format: .dateTime.hour())
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading)
+        }
+        .chartYScale(domain: 40...120)
+        // Interactive selection
+        .chartOverlay { proxy in
+            GeometryReader { geo in
+                Rectangle().fill(.clear).contentShape(Rectangle())
+                    .gesture(
+                        DragGesture()
+                            .onChanged { value in
+                                let x = value.location.x - geo[proxy.plotAreaFrame].origin.x
+                                if let time: Date = proxy.value(atX: x) {
+                                    selectedTime = time
+                                }
+                            }
+                    )
+            }
+        }
+    }
+}
+
+// MARK: - Progress Ring
+struct ProgressRing: View {
+    let progress: Double  // 0.0 to 1.0
+    let color: Color
+    let lineWidth: CGFloat = 12
+
+    var body: some View {
+        ZStack {
+            // Background track
+            Circle()
+                .stroke(color.opacity(0.2), lineWidth: lineWidth)
+
+            // Progress arc
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(
+                    color.gradient,
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .animation(.spring(response: 0.6), value: progress)
+        }
+    }
+}
+
+// MARK: - Activity Rings (Apple Fitness style)
+struct ActivityRings: View {
+    let move: Double
+    let exercise: Double
+    let stand: Double
+
+    var body: some View {
+        ZStack {
+            ProgressRing(progress: stand, color: .cyan)
+                .frame(width: 100, height: 100)
+            ProgressRing(progress: exercise, color: .green)
+                .frame(width: 130, height: 130)
+            ProgressRing(progress: move, color: .red)
+                .frame(width: 160, height: 160)
+        }
+    }
+}
+```
+
+### Real-Time Data Updates
+
+```swift
+// Smooth number transitions
+struct AnimatedNumber: View {
+    let value: Int
+
+    var body: some View {
+        Text("\(value)")
+            .font(.system(size: 48, weight: .medium, design: .rounded))
+            .monospacedDigit()
+            .contentTransition(.numericText())
+            .animation(.snappy, value: value)
+    }
+}
+
+// Status with smooth color transition
+struct LiveStatus: View {
+    let status: Status
+
+    var body: some View {
+        HStack {
+            Circle()
+                .fill(status.color)
+                .frame(width: 8, height: 8)
+
+            Text(status.label)
+                .font(.subheadline)
+        }
+        .animation(.smooth, value: status)
+    }
+}
+```
+
+### Color as Data
+
+| Meaning | Color | Usage |
+|---------|-------|-------|
+| Success/Good | Green | On-time, goal met, healthy |
+| Warning/Attention | Yellow/Orange | Approaching limit, caution |
+| Error/Problem | Red | Delayed, over limit, critical |
+| Neutral/Info | Blue | Normal state, informational |
+| Inactive/Disabled | Gray | Unavailable, historical |
+
+```swift
+// Status-aware styling
+extension FlightStatus {
+    var color: Color {
+        switch self {
+        case .onTime: return .green
+        case .delayed: return .orange
+        case .cancelled: return .red
+        case .boarding: return .blue
+        }
+    }
+}
+```
+
+---
+
+## Empty States & Edge Cases
+
+> "Every state is a first impression for someone."
+
+### Empty State Anatomy
+
+```
+┌─────────────────────────────────────┐
+│                                     │
+│          [Illustration]             │  ← Visual, not just icon
+│                                     │
+│        No flights yet               │  ← Clear headline
+│                                     │
+│   Add a flight to start tracking    │  ← Helpful explanation
+│   your journey.                     │
+│                                     │
+│       [ Add Flight ]                │  ← Single CTA
+│                                     │
+└─────────────────────────────────────┘
+```
+
+### SwiftUI Implementation
+
+```swift
+struct EmptyStateView: View {
+    let icon: String
+    let title: String
+    let message: String
+    let actionTitle: String?
+    let action: (() -> Void)?
+
+    var body: some View {
+        VStack(spacing: 20) {
+            // Illustration or animated icon
+            Image(systemName: icon)
+                .font(.system(size: 64))
+                .foregroundStyle(.secondary)
+                .symbolEffect(.pulse.byLayer)
+
+            VStack(spacing: 8) {
+                Text(title)
+                    .font(.title2.bold())
+
+                Text(message)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+
+            if let actionTitle = actionTitle, let action = action {
+                Button(actionTitle, action: action)
+                    .buttonStyle(.borderedProminent)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+// Usage
+EmptyStateView(
+    icon: "airplane.circle",
+    title: "No Flights Yet",
+    message: "Add a flight to start tracking your journey.",
+    actionTitle: "Add Flight",
+    action: { showAddFlight = true }
+)
+```
+
+### Loading States
+
+**Skeleton screens** beat spinners for perceived performance:
+
+```swift
+struct SkeletonCard: View {
+    @State private var isAnimating = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Title placeholder
+            RoundedRectangle(cornerRadius: 4)
+                .fill(.quaternary)
+                .frame(width: 120, height: 20)
+
+            // Subtitle placeholder
+            RoundedRectangle(cornerRadius: 4)
+                .fill(.quaternary)
+                .frame(width: 200, height: 16)
+
+            // Content placeholder
+            RoundedRectangle(cornerRadius: 4)
+                .fill(.quaternary)
+                .frame(height: 80)
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        // Shimmer effect
+        .overlay {
+            LinearGradient(
+                colors: [.clear, .white.opacity(0.4), .clear],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .offset(x: isAnimating ? 400 : -400)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .onAppear {
+            withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                isAnimating = true
+            }
+        }
+    }
+}
+```
+
+### Error States
+
+Human language, not error codes:
+
+```swift
+struct ErrorView: View {
+    let error: AppError
+    let retry: () -> Void
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundStyle(.orange)
+
+            Text(error.userFriendlyTitle)
+                .font(.headline)
+
+            Text(error.userFriendlyMessage)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            Button("Try Again", action: retry)
+                .buttonStyle(.bordered)
+        }
+        .padding()
+    }
+}
+
+// Human-friendly error messages
+extension AppError {
+    var userFriendlyTitle: String {
+        switch self {
+        case .networkError: return "Connection Problem"
+        case .serverError: return "Something Went Wrong"
+        case .notFound: return "Not Found"
+        }
+    }
+
+    var userFriendlyMessage: String {
+        switch self {
+        case .networkError:
+            return "Please check your internet connection and try again."
+        case .serverError:
+            return "We're having trouble on our end. Please try again in a moment."
+        case .notFound:
+            return "We couldn't find what you're looking for."
+        }
+    }
+}
+```
+
+### Offline Mode
+
+```swift
+struct OfflineBanner: View {
+    var body: some View {
+        HStack {
+            Image(systemName: "wifi.slash")
+            Text("You're offline")
+                .font(.subheadline)
+            Spacer()
+            Text("Showing cached data")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(.orange.opacity(0.2))
+    }
+}
+```
+
+### First-Run Experience
+
+```swift
+// Progressive onboarding - one concept at a time
+struct OnboardingFlow: View {
+    @State private var currentPage = 0
+
+    var body: some View {
+        TabView(selection: $currentPage) {
+            OnboardingPage(
+                icon: "airplane.departure",
+                title: "Track Your Flights",
+                subtitle: "Get real-time updates on gates, delays, and boarding.",
+                page: 0
+            )
+
+            OnboardingPage(
+                icon: "bell.badge",
+                title: "Never Miss a Change",
+                subtitle: "Instant notifications for everything that matters.",
+                page: 1
+            )
+
+            OnboardingPage(
+                icon: "hand.tap",
+                title: "One Tap Access",
+                subtitle: "Live Activities keep you updated without opening the app.",
+                page: 2,
+                showGetStarted: true
+            )
+        }
+        .tabViewStyle(.page)
+    }
+}
+```
+
+---
+
+## Premium Polish Details
+
+> "The details are not the details. They make the design." — Charles Eames
+
+### Shadow System
+
+```swift
+extension View {
+    // Light shadow - for subtle elevation
+    func shadowLight() -> some View {
+        self.shadow(color: .black.opacity(0.04), radius: 2, y: 1)
+    }
+
+    // Medium shadow - for cards and elevated content
+    func shadowMedium() -> some View {
+        self.shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+    }
+
+    // Heavy shadow - for modals and popovers
+    func shadowHeavy() -> some View {
+        self.shadow(color: .black.opacity(0.15), radius: 20, y: 10)
+    }
+
+    // Colored shadow - matches content color
+    func shadowColored(_ color: Color) -> some View {
+        self.shadow(color: color.opacity(0.3), radius: 12, y: 6)
+    }
+}
+
+// Usage
+Card()
+    .shadowMedium()
+
+Button("Premium")
+    .background(.blue)
+    .shadowColored(.blue)  // Blue glow effect
+```
+
+### Corner Radius Hierarchy
+
+| Element Type | Corner Radius | Example |
+|--------------|---------------|---------|
+| Outer containers | 20-24pt | Cards, modals |
+| Inner containers | 12-16pt | Buttons, input fields |
+| Nested elements | 8pt | Tags, badges |
+| Tight spaces | 4pt | Small indicators |
+
+```swift
+// Never same radius everywhere
+struct PremiumCard: View {
+    var body: some View {
+        VStack {
+            // Card: 20pt
+            RoundedRectangle(cornerRadius: 20)
+                .overlay {
+                    VStack {
+                        // Button inside: 12pt
+                        Button("Action") { }
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                        // Tag inside button: 8pt
+                        Text("New")
+                            .padding(.horizontal, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(.blue)
+                            )
+                    }
+                }
+        }
+    }
+}
+```
+
+### Gradient Usage
+
+```swift
+// Accent gradients (not flat colors)
+struct PremiumButton: View {
+    var body: some View {
+        Text("Continue")
+            .padding()
+            .background(
+                LinearGradient(
+                    colors: [.blue, .blue.opacity(0.8)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .clipShape(Capsule())
+    }
+}
+
+// Mesh gradient (iOS 18+ premium)
+struct PremiumBackground: View {
+    var body: some View {
+        MeshGradient(
+            width: 3,
+            height: 3,
+            points: [
+                [0, 0], [0.5, 0], [1, 0],
+                [0, 0.5], [0.5, 0.5], [1, 0.5],
+                [0, 1], [0.5, 1], [1, 1]
+            ],
+            colors: [
+                .blue, .purple, .pink,
+                .cyan, .mint, .orange,
+                .blue, .indigo, .purple
+            ]
+        )
+        .ignoresSafeArea()
+    }
+}
+```
+
+### Layered Glass Effects
+
+```swift
+struct LayeredGlassCard: View {
+    var body: some View {
+        ZStack {
+            // Background layer (deepest)
+            RoundedRectangle(cornerRadius: 24)
+                .fill(.ultraThinMaterial)
+
+            // Middle layer
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.thinMaterial)
+                .padding(4)
+
+            // Content layer (front)
+            VStack {
+                // Content here
+            }
+            .padding()
+        }
+        .shadowMedium()
+    }
+}
+```
+
+### Ambient Animations
+
+Subtle, continuous animations that make the UI feel alive:
+
+```swift
+struct AmbientBackground: View {
+    @State private var phase: CGFloat = 0
+
+    var body: some View {
+        Canvas { context, size in
+            // Animated gradient blobs
+            let blob1 = Path(ellipseIn: CGRect(
+                x: size.width * 0.2 + sin(phase) * 20,
+                y: size.height * 0.3 + cos(phase) * 15,
+                width: 200, height: 200
+            ))
+
+            context.fill(blob1, with: .color(.blue.opacity(0.3)))
+        }
+        .blur(radius: 60)
+        .onAppear {
+            withAnimation(.linear(duration: 8).repeatForever(autoreverses: true)) {
+                phase = .pi * 2
+            }
+        }
+    }
+}
+```
+
+---
+
+## Sound Design
+
+> "Sound should confirm, not announce."
+
+### When to Use Sound
+
+| Use Sound | Don't Use Sound |
+|-----------|-----------------|
+| Payment complete | Every button tap |
+| Message sent | Navigation |
+| Achievement unlocked | Form validation |
+| Critical error | Regular errors |
+| Timer complete | List scrolling |
+
+### System Sounds
+
+```swift
+import AudioToolbox
+
+enum SystemSound {
+    static func playSuccess() {
+        AudioServicesPlaySystemSound(1407)  // Payment success
+    }
+
+    static func playError() {
+        AudioServicesPlaySystemSound(1521)  // Error vibration
+    }
+
+    static func playTap() {
+        AudioServicesPlaySystemSound(1104)  // Subtle tap
+    }
+}
+```
+
+### Custom Sounds Guidelines
+
+1. **Duration**: < 1 second for feedback
+2. **Volume**: Quieter than system sounds
+3. **Frequency**: Mid-range (not jarring high or rumbling low)
+4. **Consistency**: Same sound for same action
+5. **Accessibility**: Never sound-only feedback
+
+```swift
+import AVFoundation
+
+class SoundManager {
+    static let shared = SoundManager()
+    private var audioPlayer: AVAudioPlayer?
+
+    func playSuccess() {
+        guard let url = Bundle.main.url(forResource: "success", withExtension: "wav") else { return }
+
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.volume = 0.5  // Quieter than system
+            audioPlayer?.play()
+        } catch {
+            // Silently fail - never block UI for sound
+        }
+    }
+}
+```
+
+---
+
+## Context-Specific Design
+
+Different app categories require different design approaches while staying within HIG.
+
+### Travel Apps (Flighty-style)
+
+```swift
+// Airport signage conventions
+struct FlightStatusBadge: View {
+    let status: FlightStatus
+
+    var body: some View {
+        Text(status.rawValue.uppercased())
+            .font(.system(size: 12, weight: .bold, design: .monospaced))
+            .kerning(1)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(status.color)
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+    }
+}
+
+// Time-zone aware display
+struct TimeDisplay: View {
+    let date: Date
+    let timeZone: TimeZone
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(date, format: .dateTime.hour().minute())
+                .font(.title2.bold())
+                .environment(\.timeZone, timeZone)
+
+            Text(timeZone.abbreviation() ?? "")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+```
+
+### Finance Apps
+
+```swift
+// Currency with proper formatting
+struct CurrencyDisplay: View {
+    let amount: Decimal
+    let currency: String
+    let showSign: Bool
+
+    var body: some View {
+        Text(amount, format: .currency(code: currency)
+            .sign(strategy: showSign ? .always() : .automatic))
+            .font(.system(.title, design: .rounded, weight: .semibold))
+            .monospacedDigit()
+            .foregroundStyle(amount >= 0 ? .primary : .red)
+    }
+}
+
+// Trend indicator
+struct TrendIndicator: View {
+    let percentChange: Double
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: percentChange >= 0 ? "arrow.up.right" : "arrow.down.right")
+            Text("\(abs(percentChange), specifier: "%.2f")%")
+        }
+        .font(.caption.bold())
+        .foregroundStyle(percentChange >= 0 ? .green : .red)
+    }
+}
+
+// Security indicator
+struct SecureFieldIndicator: View {
+    var body: some View {
+        HStack {
+            Image(systemName: "lock.fill")
+                .foregroundStyle(.green)
+            Text("256-bit encrypted")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+```
+
+### Health/Fitness Apps
+
+```swift
+// Goal celebration
+struct GoalComplete: View {
+    @State private var animate = false
+
+    var body: some View {
+        VStack {
+            Image(systemName: "star.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(.yellow)
+                .scaleEffect(animate ? 1.2 : 0.8)
+                .onAppear {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
+                        animate = true
+                    }
+                    HapticManager.shared.success()
+                }
+
+            Text("Goal Complete!")
+                .font(.title2.bold())
+
+            Text("You've moved 30 minutes today")
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+// Progress ring with goal
+struct GoalRing: View {
+    let current: Double
+    let goal: Double
+
+    var progress: Double { min(current / goal, 1.0) }
+
+    var body: some View {
+        ZStack {
+            ProgressRing(progress: progress, color: .green)
+
+            VStack {
+                Text("\(Int(current))")
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .contentTransition(.numericText())
+                Text("/ \(Int(goal)) min")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: 150, height: 150)
+    }
+}
+```
+
+### Productivity Apps (Things 3-style)
+
+```swift
+// Quick capture
+struct QuickAddField: View {
+    @State private var text = ""
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        HStack {
+            Image(systemName: "plus.circle.fill")
+                .foregroundStyle(.blue)
+
+            TextField("New task", text: $text)
+                .focused($isFocused)
+                .submitLabel(.done)
+                .onSubmit {
+                    guard !text.isEmpty else { return }
+                    createTask(text)
+                    text = ""
+                    HapticManager.shared.confirm()
+                }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// Completion celebration
+struct TaskComplete: View {
+    var body: some View {
+        Image(systemName: "checkmark.circle.fill")
+            .font(.title2)
+            .foregroundStyle(.green)
+            .symbolEffect(.bounce, value: true)
+    }
+}
+
+// Drag-to-organize
+struct ReorderableList<Item: Identifiable, Content: View>: View {
+    @Binding var items: [Item]
+    let content: (Item) -> Content
+
+    var body: some View {
+        List {
+            ForEach(items) { item in
+                content(item)
+            }
+            .onMove { from, to in
+                items.move(fromOffsets: from, toOffset: to)
+                HapticManager.shared.select()
+            }
+        }
+        .listStyle(.plain)
+    }
+}
+```
+
+---
+
 ## Screen Sizes Reference
 
 ### iPhone (points)
@@ -1650,32 +4035,83 @@ Icon(
 
 ## Best Practices Checklist
 
-### Design
+### Design Philosophy
+- [ ] Every design decision is **intentional**, not default
+- [ ] Progressive disclosure (20% visible, 80% on-demand)
+- [ ] Physical metaphor grounding for gestures
+- [ ] Anticipatory feedback (haptics on press, not release)
+- [ ] Delight budget allocated (5-10% for joy moments)
+- [ ] One-handed design for primary actions
+
+### Visual Design
 - [ ] Follow Clarity, Deference, Depth principles
-- [ ] Use Liquid Glass for modern iOS 26+ feel
-- [ ] Implement semantic colors for dark/light mode
-- [ ] Use SF Pro and Dynamic Type scales
-- [ ] Follow 8-point grid for spacing
+- [ ] Use Liquid Glass on 2-3 key surfaces (not everywhere)
+- [ ] Semantic colors for automatic dark/light mode
+- [ ] SF Pro with Dynamic Type scales
+- [ ] 8-point grid for spacing
+- [ ] Corner radius hierarchy (20pt → 12pt → 8pt)
+- [ ] Shadow system (light/medium/heavy)
 - [ ] Design for both iPhone and iPad
 
+### Animations & Motion
+- [ ] Spring-based animations (not linear)
+- [ ] Animation velocity matches gesture velocity
+- [ ] Duration in 200-500ms sweet spot
+- [ ] Interruptible animations
+- [ ] Reduce Motion support with alternatives
+- [ ] Physics-based for organic feel
+
+### Haptic Feedback
+- [ ] Haptic hierarchy implemented (light → heavy)
+- [ ] Context determines haptic weight
+- [ ] Anticipatory haptics (on press, not release)
+- [ ] Detent feedback for meaningful positions
+- [ ] Never gratuitous vibrations
+
 ### Components
-- [ ] Use native components when possible
+- [ ] Native components when possible
 - [ ] Minimum 44x44pt touch targets
 - [ ] Consistent navigation patterns
 - [ ] Proper keyboard handling
 - [ ] Safe area respect
 
+### States & Edge Cases
+- [ ] Empty states with illustration + CTA
+- [ ] Loading states (skeleton screens, not spinners)
+- [ ] Error states with human language
+- [ ] Offline mode indicator
+- [ ] First-run/onboarding experience
+
+### Live Activities & Widgets
+- [ ] Live Activities for time-sensitive data
+- [ ] Widgets for all relevant sizes
+- [ ] Lock Screen widgets where appropriate
+- [ ] Glanceable in <3 seconds
+- [ ] Deep links to relevant content
+
+### Data Visualization
+- [ ] Information hierarchy (primary → secondary → tertiary)
+- [ ] Color as data (green/yellow/red meanings)
+- [ ] Smooth number transitions
+- [ ] Interactive charts where appropriate
+
+### Sound Design
+- [ ] Sounds for confirmations, not every action
+- [ ] Custom sounds quieter than system
+- [ ] Never sound-only feedback
+
 ### Accessibility
 - [ ] VoiceOver labels for all interactive elements
-- [ ] Dynamic Type support
-- [ ] Sufficient color contrast (4.5:1 for text)
-- [ ] Reduce Motion support
+- [ ] Dynamic Type support (all text scales)
+- [ ] Color contrast (4.5:1 text, 3:1 UI)
+- [ ] Reduce Motion alternatives
 - [ ] Increase Contrast support
 
 ### Performance
 - [ ] Smooth 60fps animations
 - [ ] Lazy loading for lists
 - [ ] Efficient image handling
+- [ ] Prefer transform properties (GPU-accelerated)
 - [ ] Minimal layout recalculations
 
 ### Testing
@@ -1684,3 +4120,6 @@ Icon(
 - [ ] Test with VoiceOver enabled
 - [ ] Test with Dynamic Type at various sizes
 - [ ] Test with Reduce Motion enabled
+- [ ] Test Live Activities (compact/expanded/minimal)
+- [ ] Test widgets (all sizes)
+- [ ] Test haptics on device (not simulator)
