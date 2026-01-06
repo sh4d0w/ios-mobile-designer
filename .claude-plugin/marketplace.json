@@ -1,15 +1,15 @@
 {
   "name": "sh4d0w-plugins",
-  "version": "2.0.0",
-  "description": "iOS Mobile Designer - Premium Apple HIG with Liquid Glass (iOS 26)",
+  "version": "2.1.0",
+  "description": "iOS Mobile Designer - Unique, non-template design with Brand Personality DNA",
   "owner": {
     "name": "sh4d0w"
   },
   "plugins": [
     {
       "name": "ios-mobile-designer",
-      "version": "2.0.0",
-      "description": "Premium iOS design with Live Activities, Widgets, Physics animations, Haptic hierarchy. Flighty-level quality.",
+      "version": "2.1.0",
+      "description": "Unique iOS design with Brand DNA, Emotional Framework, Motion Personality. Creates distinctive apps, not templates.",
       "source": "./"
     }
   ]

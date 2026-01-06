@@ -2,6 +2,26 @@
 
 All notable changes to iOS Mobile Designer will be documented in this file.
 
+## [2.1.0] - 2026-01-06
+
+### Added
+- **Brand Personality DNA System** - 7 archetypes (Luxury, Playful, Professional, Minimalist, Bold, Warm, Technical) with design decision mapping
+- **Color Theory & Palette Generation** - 60-30-10 rule, emotion-based palettes, dark mode optimization, brand color extraction
+- **Anti-Template Techniques** - "One Unexpected Thing" rule, breaking the grid intentionally, avoiding AI-generated aesthetic
+- **Emotional Design Framework** - User journey mapping, emotion-targeted design (confidence, delight, recovery, anticipation)
+- **Signature Moments Design** - Creating memorable micro-moments like Things 3 completion celebration
+- **Motion Personality System** - 5 motion archetypes (Playful, Professional, Elegant, Snappy, Organic) with spring configs
+
+### Philosophy
+- **Unique over Template** - Every app should have distinctive personality, not follow generic patterns
+- **Brand DNA First** - Design decisions flow from brand archetype configuration
+- **Emotional Journey** - Map user emotions through the app experience
+
+### Stats
+- File size: ~4,125 → 4,900+ lines (+19%)
+- New sections: 6
+- New code patterns: 30+ SwiftUI/React Native/Flutter snippets
+
 ## [2.0.0] - 2026-01-06
 
 ### Added

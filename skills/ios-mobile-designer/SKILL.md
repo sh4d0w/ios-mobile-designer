@@ -246,6 +246,751 @@ HIG provides the grammar; your app provides the voice. Ways to stand out:
 
 ---
 
+## Brand Personality DNA
+
+> "Every app has a soul. Your job is to reveal it, not impose it."
+
+Before designing ANY screen, define your app's personality DNA. This determines EVERYTHING: colors, typography, animations, sounds, spacing.
+
+### Brand Archetypes
+
+| Archetype | Personality | Colors | Typography | Motion | Examples |
+|-----------|-------------|--------|------------|--------|----------|
+| **Luxury** | Exclusive, refined, confident | Black, gold, deep jewel tones | Thin weights, wide tracking, serifs | Slow, smooth, cinematic | Amex, Net-A-Porter |
+| **Playful** | Fun, energetic, young | Bright, saturated, unexpected combos | Rounded, bouncy, variable weights | Bouncy, springy, surprising | Duolingo, Headspace |
+| **Professional** | Trustworthy, efficient, capable | Blues, grays, muted palette | Clean, medium weights, tight | Snappy, precise, no bounce | Bloomberg, Slack |
+| **Minimalist** | Calm, focused, essential | Monochrome, one accent | Light weights, generous spacing | Subtle, fade-based, smooth | Things 3, iA Writer |
+| **Bold** | Confident, disruptive, loud | High contrast, vibrant | Heavy weights, large sizes | Dramatic, fast, impactful | Spotify, Cash App |
+| **Warm** | Friendly, approachable, human | Earth tones, soft gradients | Rounded sans, medium weights | Gentle, organic, flowing | Airbnb, Calm |
+| **Technical** | Precise, data-driven, expert | Dark UI, neon accents | Monospace, tabular figures | Sharp, mechanical, exact | Flighty, Robinhood |
+
+### Defining Your DNA
+
+```swift
+// MARK: - Brand DNA Configuration
+struct BrandDNA {
+    // Core personality (pick 1 primary, 1 secondary)
+    let primaryArchetype: Archetype
+    let secondaryArchetype: Archetype
+
+    // Voice attributes (3-5 adjectives)
+    let voiceAttributes: [String]  // e.g., ["confident", "helpful", "witty"]
+
+    // Visual tension (what makes you different)
+    let unexpectedElement: String  // e.g., "playful animations in serious finance app"
+
+    // Signature element (one thing users remember)
+    let signatureElement: String   // e.g., "the satisfying check animation"
+}
+
+// Example: Flighty
+let flightyDNA = BrandDNA(
+    primaryArchetype: .technical,
+    secondaryArchetype: .luxury,
+    voiceAttributes: ["precise", "anticipatory", "calm under pressure"],
+    unexpectedElement: "Warm, human touches in data-heavy interface",
+    signatureElement: "Airport signage aesthetic with real-time drama"
+)
+
+// Example: Duolingo
+let duolingoDNA = BrandDNA(
+    primaryArchetype: .playful,
+    secondaryArchetype: .warm,
+    voiceAttributes: ["encouraging", "slightly sassy", "celebratory"],
+    unexpectedElement: "Guilt-trip notifications that users love",
+    signatureElement: "Duo owl character reactions"
+)
+```
+
+### DNA → Design Decisions
+
+| Decision | Luxury | Playful | Professional | Minimalist |
+|----------|--------|---------|--------------|------------|
+| Primary font weight | Thin/Light | Medium/Bold | Regular | Light |
+| Letter spacing | Wide (+2-5%) | Normal | Tight (-1%) | Wide (+3%) |
+| Corner radius | Sharp (4-8pt) | Round (16-24pt) | Medium (8-12pt) | Subtle (4pt) |
+| Animation bounce | None (damping: 1.0) | High (damping: 0.5) | Low (damping: 0.8) | None |
+| Color saturation | Low, muted | High, vibrant | Medium | Very low |
+| Spacing rhythm | Generous, airy | Tight, energetic | Balanced | Extreme (sparse) |
+| Haptic intensity | Subtle | Pronounced | Moderate | Minimal |
+
+---
+
+## Color Theory & Palette Generation
+
+> "Color is not decoration. Color is information."
+
+### The 60-30-10 Rule (Adapted for Mobile)
+
+```
+┌─────────────────────────────────────────┐
+│ 60% - Background / Base                 │  ← Neutral, semantic
+│   (systemBackground, secondaryBg)       │
+├─────────────────────────────────────────┤
+│ 30% - Secondary / Supporting            │  ← Brand-adjacent
+│   (cards, sections, navigation)         │
+├─────────────────────────────────────────┤
+│ 10% - Accent / Action                   │  ← Your signature color
+│   (CTAs, highlights, key info)          │
+└─────────────────────────────────────────┘
+```
+
+### Unique Palette Generation
+
+**Step 1: Start with emotion, not aesthetics**
+```
+What should users FEEL?
+├── Excited → Warm colors (orange, red, yellow)
+├── Calm → Cool colors (blue, green, purple)
+├── Trusted → Blue, navy, deep green
+├── Energized → Saturated, high contrast
+└── Focused → Muted, monochromatic
+```
+
+**Step 2: Find your signature color**
+```swift
+// NOT this (generic)
+let accent = Color.blue  // systemBlue
+
+// THIS (intentional)
+let accent = Color(red: 0.33, green: 0.47, blue: 1.0)  // "Electric Indigo"
+// Why: Conveys tech-forward + trustworthy, stands out in App Store
+```
+
+**Step 3: Build harmonious palette**
+```swift
+struct AppPalette {
+    // Signature (your 10%)
+    static let accent = Color("ElectricIndigo")
+
+    // Extended palette (derived from signature)
+    static let accentLight = accent.opacity(0.15)      // Backgrounds
+    static let accentMedium = accent.opacity(0.6)      // Secondary actions
+    static let accentGradient = LinearGradient(
+        colors: [accent, accent.adjusted(hue: 0.05)],  // Subtle shift
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+
+    // Semantic (keep system for these)
+    static let success = Color.green
+    static let warning = Color.orange
+    static let error = Color.red
+
+    // Neutrals (customize slightly)
+    static let textPrimary = Color(.label)
+    static let textSecondary = Color(.secondaryLabel)
+    static let background = Color(.systemBackground)
+    static let cardBackground = Color(.secondarySystemBackground)
+}
+```
+
+### Color Psychology by App Category
+
+| Category | Primary Emotion | Recommended Palette |
+|----------|-----------------|---------------------|
+| Finance | Trust, security | Deep blue, green, gold accents |
+| Health | Calm, growth | Soft green, teal, coral |
+| Productivity | Focus, achievement | Blue, purple, minimal |
+| Social | Energy, connection | Vibrant, multi-color |
+| Travel | Adventure, excitement | Sky blue, sunset orange |
+| Food | Appetite, warmth | Red, orange, cream |
+| Education | Curiosity, progress | Green, yellow, friendly blue |
+
+### Dark Mode: Not Just Inverted
+
+```swift
+// BAD: Simple inversion
+let cardBg = colorScheme == .dark ? .black : .white
+
+// GOOD: Intentional dark palette
+extension Color {
+    static let cardBackground = Color(
+        light: Color(hex: "FFFFFF"),
+        dark: Color(hex: "1C1C1E")   // Slightly warm, not pure black
+    )
+
+    static let elevatedSurface = Color(
+        light: Color(hex: "F2F2F7"),
+        dark: Color(hex: "2C2C2E")   // Lifted appearance
+    )
+
+    // Accent may need adjustment
+    static let accent = Color(
+        light: Color(hex: "5577FF"),  // Works on white
+        dark: Color(hex: "6B8AFF")    // Slightly lighter for dark bg
+    )
+}
+```
+
+---
+
+## Anti-Template Techniques
+
+> "If you've seen it in a UI kit, don't use it unchanged."
+
+### The "One Unexpected Thing" Rule
+
+Every screen should have **ONE element** that breaks expectations (while staying usable):
+
+```
+┌─────────────────────────────────────────┐
+│ Standard Header               [Action]  │  ← Expected
+├─────────────────────────────────────────┤
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │     🎯 UNEXPECTED ELEMENT       │    │  ← Your signature
+│  │     (Tilted card? Animation?    │    │
+│  │      Custom illustration?       │    │
+│  │      Unusual layout?)           │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  Standard list item                →    │  ← Expected
+│  Standard list item                →    │
+│  Standard list item                →    │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+### Anti-Template Checklist
+
+Before shipping any screen, ask:
+
+- [ ] Would this look identical if another app used the same UI kit?
+- [ ] Is there at least ONE element that's uniquely "us"?
+- [ ] Does the layout follow the obvious grid, or does it have rhythm?
+- [ ] Are we using stock SF Symbols, or customized versions?
+- [ ] Is the color usage predictable or intentional?
+- [ ] Does any animation surprise (in a good way)?
+
+### Breaking the Grid (Intentionally)
+
+```swift
+// TEMPLATE: Perfect alignment
+VStack(alignment: .leading, spacing: 16) {
+    Text("Title").font(.title)
+    Text("Subtitle").font(.body)
+    Image("hero")
+}
+
+// UNIQUE: Intentional tension
+ZStack(alignment: .topLeading) {
+    Image("hero")
+        .offset(x: 40)  // Bleeds right
+        .clipped()
+
+    VStack(alignment: .leading, spacing: 8) {
+        Text("Title")
+            .font(.system(size: 34, weight: .bold))
+            .offset(x: -8)  // Slight left bleed
+
+        Text("Subtitle")
+            .font(.body)
+            .padding(.leading, 16)  // Different indent
+    }
+    .padding(.top, 120)  // Overlaps image
+}
+```
+
+### Unexpected Element Library
+
+| Technique | When to Use | Example |
+|-----------|-------------|---------|
+| **Oversized typography** | Hero moments, onboarding | 120pt welcome text |
+| **Asymmetric layout** | Feature highlights | Image bleeds off edge |
+| **Micro-copy personality** | Empty states, errors | "Well, this is awkward..." |
+| **Hidden gestures** | Power users, delight | Pull past threshold for easter egg |
+| **Custom transitions** | Navigation moments | Morphing between screens |
+| **Illustration style** | Onboarding, empty states | Hand-drawn vs vector vs 3D |
+| **Sound signature** | Key actions | Custom completion sound |
+| **Color surprise** | Success states | Unexpected confetti colors |
+
+### Avoiding "AI-Generated" Look
+
+Common AI patterns to avoid:
+
+```swift
+// ❌ AI-GENERATED SYMPTOMS
+struct GenericCard: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "star.fill")  // Stock icon
+                .font(.system(size: 48))
+                .foregroundColor(.blue)      // systemBlue
+            Text("Feature Title")
+                .font(.headline)
+            Text("Description text that explains the feature in a generic way.")
+                .font(.body)
+                .foregroundColor(.secondary)
+        }
+        .padding(24)                         // Same padding everywhere
+        .background(Color.white)
+        .cornerRadius(16)                    // Same radius everywhere
+        .shadow(radius: 8)                   // Generic shadow
+    }
+}
+
+// ✅ HUMAN-DESIGNED
+struct DistinctiveCard: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {  // Not centered VStack
+            // Custom icon treatment
+            Circle()
+                .fill(AppPalette.accent.opacity(0.15))
+                .frame(width: 44, height: 44)
+                .overlay(
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(AppPalette.accent)
+                )
+
+            VStack(alignment: .leading, spacing: 4) {  // Tighter spacing
+                Text("Feature")
+                    .font(.system(size: 15, weight: .semibold))
+
+                Text("Specific, benefit-focused copy.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.tertiary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(.ultraThinMaterial)           // Not solid white
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        // No generic shadow - using material instead
+    }
+}
+```
+
+---
+
+## Emotional Design Framework
+
+> "People will forget what you said, but they'll never forget how you made them feel."
+
+### Emotional Journey Mapping
+
+Map emotions through your user's journey, then design for each:
+
+```
+User Journey:        Emotion Target:       Design Response:
+─────────────────────────────────────────────────────────────
+First open       →   Curious, welcomed  →  Warm onboarding, no walls
+Sign up          →   Confident          →  Progress indication, reassurance
+First success    →   Delighted          →  Celebration animation + sound
+Daily use        →   Efficient, capable →  Fast, minimal friction
+Hit obstacle     →   Supported          →  Helpful error, clear path
+Achievement      →   Proud, motivated   →  Recognition, shareable
+Inactive return  →   Welcome back       →  Gentle re-engagement
+```
+
+### Designing for Specific Emotions
+
+#### Confidence
+```swift
+// Clear progress, no surprises
+struct ConfidenceBuilder: View {
+    let steps: Int
+    let current: Int
+
+    var body: some View {
+        VStack(spacing: 16) {
+            // Show exactly where they are
+            ProgressView(value: Double(current), total: Double(steps))
+                .tint(.green)
+
+            Text("Step \(current) of \(steps)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            // Reassurance copy
+            Text("Your information is encrypted and secure")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+    }
+}
+```
+
+#### Delight (Celebration Moment)
+```swift
+struct CelebrationView: View {
+    @State private var animate = false
+
+    var body: some View {
+        ZStack {
+            // Confetti particles
+            ConfettiView(isActive: animate)
+
+            VStack(spacing: 16) {
+                // Animated icon
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 72))
+                    .foregroundStyle(.green)
+                    .symbolEffect(.bounce, value: animate)
+                    .scaleEffect(animate ? 1 : 0.5)
+
+                Text("You did it!")
+                    .font(.title.bold())
+
+                Text("First workout complete")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .onAppear {
+            HapticManager.shared.success()
+            SoundManager.shared.playSuccess()
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                animate = true
+            }
+        }
+    }
+}
+```
+
+#### Recovery (From Negative Emotion)
+```swift
+struct GentleErrorView: View {
+    let error: Error
+    let retry: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            // Soft illustration, not angry icon
+            Image("error-illustration")  // Custom, friendly
+                .resizable()
+                .frame(width: 120, height: 120)
+
+            Text("Hmm, that didn't work")
+                .font(.title3.bold())
+
+            Text("Don't worry, your data is safe. Let's try that again.")
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            Button("Try Again", action: retry)
+                .buttonStyle(.borderedProminent)
+
+            // Offer escape route
+            Button("Contact Support") { }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(32)
+    }
+}
+```
+
+#### Anticipation (Building Excitement)
+```swift
+struct CountdownView: View {
+    let targetDate: Date
+    @State private var timeRemaining: TimeInterval = 0
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Text("Launching in")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+                .tracking(2)
+
+            // Large countdown numbers
+            HStack(spacing: 4) {
+                TimeUnit(value: days, label: "days")
+                Text(":").font(.largeTitle).foregroundStyle(.tertiary)
+                TimeUnit(value: hours, label: "hrs")
+                Text(":").font(.largeTitle).foregroundStyle(.tertiary)
+                TimeUnit(value: minutes, label: "min")
+            }
+            .monospacedDigit()
+
+            // Pulsing indicator
+            Circle()
+                .fill(.green)
+                .frame(width: 8, height: 8)
+                .modifier(PulsingModifier())
+        }
+    }
+}
+```
+
+---
+
+## Signature Moments
+
+> "One memorable moment is worth a thousand polished screens."
+
+### What Makes a Signature Moment
+
+- **Unexpected**: Breaks from normal flow
+- **Sensory**: Combines visual + haptic + (maybe) sound
+- **Shareable**: Users want to show others
+- **Repeatable**: Delightful every time, not just first time
+
+### Signature Moment Examples
+
+| App | Moment | Why It Works |
+|-----|--------|--------------|
+| Things 3 | Completing last task of day | Screen "clears" with satisfying animation |
+| Duolingo | Streak milestone | Duo character celebration |
+| Apple Pay | Payment success | Double haptic + checkmark + sound |
+| Shazam | Song identified | Circular ripple from center |
+| Flighty | Flight lands | Progress bar completes + celebration |
+
+### Building Your Signature Moment
+
+```swift
+// MARK: - Signature Moment: Task Completion (Things 3 style)
+struct TaskCompletionSignature: View {
+    @Binding var isComplete: Bool
+    @State private var showCelebration = false
+
+    var body: some View {
+        ZStack {
+            // The task row
+            TaskRow(isComplete: $isComplete)
+                .opacity(showCelebration ? 0 : 1)
+
+            // The signature moment
+            if showCelebration {
+                SignatureCelebration()
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .onChange(of: isComplete) { _, newValue in
+            if newValue {
+                triggerSignatureMoment()
+            }
+        }
+    }
+
+    func triggerSignatureMoment() {
+        // 1. Haptic (anticipatory)
+        HapticManager.shared.confirm()
+
+        // 2. Visual (delayed slightly for anticipation)
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.1)) {
+            showCelebration = true
+        }
+
+        // 3. Sound (synced with visual)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            SoundManager.shared.playComplete()
+        }
+
+        // 4. Secondary haptic (success confirmation)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            HapticManager.shared.success()
+        }
+    }
+}
+
+struct SignatureCelebration: View {
+    @State private var scale: CGFloat = 0.8
+    @State private var opacity: Double = 0
+
+    var body: some View {
+        VStack {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(.green)
+                .scaleEffect(scale)
+                .opacity(opacity)
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                scale = 1.0
+                opacity = 1.0
+            }
+        }
+    }
+}
+```
+
+### App Launch Signature
+
+```swift
+struct LaunchSignature: View {
+    @State private var phase: LaunchPhase = .logo
+
+    enum LaunchPhase {
+        case logo, reveal, ready
+    }
+
+    var body: some View {
+        ZStack {
+            // Background
+            AppPalette.accentGradient
+                .ignoresSafeArea()
+
+            switch phase {
+            case .logo:
+                // Your logo with signature animation
+                AppLogo()
+                    .scaleEffect(phase == .logo ? 1.0 : 0.8)
+                    .opacity(phase == .logo ? 1.0 : 0)
+
+            case .reveal:
+                // Transition element
+                Circle()
+                    .fill(.white)
+                    .scaleEffect(20)
+                    .transition(.scale)
+
+            case .ready:
+                // Main app
+                MainTabView()
+                    .transition(.opacity)
+            }
+        }
+        .onAppear {
+            // Logo holds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    phase = .reveal
+                }
+            }
+            // Reveal to app
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    phase = .ready
+                }
+            }
+        }
+    }
+}
+```
+
+---
+
+## Motion Personality
+
+> "How you move is as important as how you look."
+
+### Motion Archetypes
+
+| Archetype | Characteristics | Spring Config | Use When |
+|-----------|-----------------|---------------|----------|
+| **Playful** | Bouncy, overshooting, energetic | `damping: 0.5, response: 0.5` | Kids, games, social |
+| **Professional** | Crisp, precise, no overshoot | `damping: 1.0, response: 0.3` | Finance, productivity |
+| **Elegant** | Slow, smooth, flowing | `damping: 0.9, response: 0.6` | Luxury, fashion |
+| **Snappy** | Fast, responsive, minimal | `damping: 0.8, response: 0.2` | Utilities, tools |
+| **Organic** | Natural, physics-based | UIKit Dynamics | Nature, health |
+
+### Implementing Motion Personality
+
+```swift
+// MARK: - Motion Personality System
+enum MotionPersonality {
+    case playful, professional, elegant, snappy, organic
+
+    var springAnimation: Animation {
+        switch self {
+        case .playful:
+            return .spring(response: 0.5, dampingFraction: 0.5, blendDuration: 0.3)
+        case .professional:
+            return .spring(response: 0.3, dampingFraction: 1.0)
+        case .elegant:
+            return .spring(response: 0.6, dampingFraction: 0.9)
+        case .snappy:
+            return .spring(response: 0.2, dampingFraction: 0.8)
+        case .organic:
+            return .interpolatingSpring(mass: 1.0, stiffness: 100, damping: 12)
+        }
+    }
+
+    var transitionDuration: Double {
+        switch self {
+        case .playful: return 0.4
+        case .professional: return 0.25
+        case .elegant: return 0.5
+        case .snappy: return 0.15
+        case .organic: return 0.35
+        }
+    }
+}
+
+// Global app motion personality
+struct AppMotion {
+    static let personality: MotionPersonality = .playful  // Set once
+
+    static var spring: Animation { personality.springAnimation }
+    static var duration: Double { personality.transitionDuration }
+}
+
+// Usage
+withAnimation(AppMotion.spring) {
+    isExpanded.toggle()
+}
+```
+
+### Motion Sequences (Choreography)
+
+```swift
+// Staggered entrance (items animate in sequence)
+struct StaggeredList<Item: Identifiable, Content: View>: View {
+    let items: [Item]
+    let content: (Item) -> Content
+    @State private var appeared = Set<Item.ID>()
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                content(item)
+                    .opacity(appeared.contains(item.id) ? 1 : 0)
+                    .offset(y: appeared.contains(item.id) ? 0 : 20)
+                    .onAppear {
+                        withAnimation(AppMotion.spring.delay(Double(index) * 0.05)) {
+                            appeared.insert(item.id)
+                        }
+                    }
+            }
+        }
+    }
+}
+
+// Hero transition (element morphs between screens)
+struct HeroTransition: View {
+    @Namespace private var hero
+    @State private var showDetail = false
+
+    var body: some View {
+        ZStack {
+            if !showDetail {
+                // Thumbnail
+                CardView()
+                    .matchedGeometryEffect(id: "card", in: hero)
+                    .onTapGesture {
+                        withAnimation(AppMotion.spring) {
+                            showDetail = true
+                        }
+                    }
+            } else {
+                // Detail
+                DetailView()
+                    .matchedGeometryEffect(id: "card", in: hero)
+                    .onTapGesture {
+                        withAnimation(AppMotion.spring) {
+                            showDetail = false
+                        }
+                    }
+            }
+        }
+    }
+}
+```
+
+---
+
 ## Core Design Principles
 
 ### Clarity
