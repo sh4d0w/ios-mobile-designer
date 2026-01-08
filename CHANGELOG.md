@@ -2,6 +2,38 @@
 
 All notable changes to iOS Mobile Designer will be documented in this file.
 
+## [2.2.0] - 2026-01-08
+
+### Critical Fixes
+- **Removed `.glassEffect()` API** - This API doesn't exist in standard SwiftUI; replaced with proper material APIs
+- **Fixed glass over-emphasis** - Restructured to match Apple HIG: Typography > Color > Spacing > Materials
+
+### Added
+- **Backgrounds & Surface Treatments** - New section with solid backgrounds as default, decision tree for when to use materials
+- **Performance Budgets** - Apple guidelines: ≤4 compositing layers, ≤40px blur radius (iPhone)
+- **Accessibility Fallbacks** - Required code for Reduce Transparency support (SwiftUI, React Native, Flutter)
+- **When to Use Materials Table** - Decision framework with ✅/⚠️/❌ recommendations
+- **Priority Hierarchy** - nav bar > tab bar > sheets > cards
+- **Vestibular Sensitivity** - Parallax limits (≤6px), animation duration limits (≤300ms)
+- **What NOT to Do** - Anti-patterns with code examples (nested blurs, no fallbacks)
+
+### Changed
+- **Renamed "Liquid Glass" → "Translucent Materials & Visual Depth"** - Reflects supplementary nature
+- **Frontmatter updated** - Typography, Color, Spacing now emphasized as primary tools
+- **Anti-Patterns section** - Added material-specific warnings
+- **Best Practices Checklist** - Added Translucent Materials section with performance/accessibility checks
+
+### Philosophy Shift
+- **Apple HIG Alignment** - "Typography, color, and spacing are PRIMARY design tools — translucent effects are supplementary"
+- **Accessibility First** - Reduce Transparency fallbacks are REQUIRED, not optional
+- **Performance Aware** - Blur effects have real GPU cost; documented constraints
+
+### Stats
+- File size: ~4,900 → 5,150+ lines (+5%)
+- Fixed: 1 fake API removed
+- New sections: 2 (Backgrounds, Materials revision)
+- New code patterns: 15+ accessibility-aware snippets
+
 ## [2.1.0] - 2026-01-06
 
 ### Added

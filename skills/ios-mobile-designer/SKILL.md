@@ -1,11 +1,13 @@
 ---
 name: ios-mobile-designer
-description: Design iOS apps following Apple's Human Interface Guidelines with Liquid Glass (iOS 26). Generate native components, ensure accessibility, and create stunning interfaces for iPhone & iPad.
+description: Design iOS apps following Apple Human Interface Guidelines. Typography, Color, and Spacing are primary tools. Generate native, accessible interfaces for iPhone & iPad.
 ---
 
 # iOS Mobile App Designer
 
-Design professional iOS applications following Apple Human Interface Guidelines (HIG) with support for the new Liquid Glass design language (iOS 26). This skill enables creation of native, accessible, and visually stunning interfaces for iPhone and iPad using SwiftUI, React Native, or Flutter.
+Design professional iOS applications following Apple Human Interface Guidelines (HIG). **Typography, color, and spacing are your primary design tools** — translucent materials and visual effects are supplementary enhancements for specific use cases. This skill enables creation of native, accessible, and visually stunning interfaces for iPhone and iPad using SwiftUI, React Native, or Flutter.
+
+> **Apple HIG Principle**: "The interface should be legible and easy to understand. Clear text, sharp icons, strong visual hierarchy, and focus on the most important elements."
 
 ---
 
@@ -221,7 +223,10 @@ HIG provides the grammar; your app provides the voice. Ways to stand out:
 ### Anti-Patterns: What NOT to Do
 
 ❌ **Generic AI Design Symptoms:**
-- Using every Liquid Glass effect on every surface
+- Using translucent materials on every surface (≤3 max)
+- No accessibility fallbacks for Reduce Transparency
+- Nested blur effects (performance killer)
+- Materials on forms or text-heavy content
 - Identical spacing everywhere (no visual rhythm)
 - Stock SF Symbols without customization
 - Blue accent color for everything
@@ -233,7 +238,10 @@ HIG provides the grammar; your app provides the voice. Ways to stand out:
 - Same animation duration everywhere
 
 ✅ **Premium App Patterns:**
-- Glass effects on 2-3 key surfaces max
+- Typography, color, spacing are PRIMARY design tools
+- Translucent materials on ≤3 key surfaces (nav, tab, sheets)
+- Solid fallbacks for Reduce Transparency users
+- Single material layer per element (never nested)
 - Varying spacing creates rhythm (tight grouping = related, wide = separate)
 - Customize SF Symbol colors, weights, and rendering modes
 - Choose accent colors that match brand personality
@@ -1007,43 +1015,153 @@ Use familiar controls, standard gestures, and predictable behaviors. People shou
 
 ---
 
-## Liquid Glass (iOS 26)
+## Backgrounds & Surface Treatments
 
-The most significant visual update since iOS 7. Liquid Glass introduces translucent, glass-like elements that respond to light, motion, and content.
+Apple HIG emphasizes that **solid backgrounds are the default choice** for maximum legibility and performance. Translucent materials are supplementary.
 
-### Key Characteristics
-- **Translucency**: UI elements feature rounded, translucent surfaces with optical properties of real glass
-- **Refraction**: Content beneath glass elements is subtly distorted, creating depth
-- **Dynamic response**: Elements adapt to lighting conditions and underlying content
-- **Fluidity**: Smooth transitions and morphing between states
+### Solid Backgrounds (Default Choice)
+
+Use solid semantic backgrounds for:
+- Dense text or form content
+- Maximum readability requirements
+- Accessibility settings active (Reduce Transparency)
+- Performance-critical screens
+
+```swift
+// SwiftUI - Solid semantic backgrounds (auto dark/light)
+Color(.systemBackground)           // Primary background
+Color(.secondarySystemBackground)  // Cards, grouped content
+Color(.tertiarySystemBackground)   // Nested elements
+
+// React Native
+PlatformColor('systemBackground')
+PlatformColor('secondarySystemBackground')
+
+// Flutter
+CupertinoColors.systemBackground
+CupertinoColors.secondarySystemBackground
+```
+
+### Gradient Backgrounds (Expressive)
+
+For hero sections, onboarding, or brand moments:
+
+```swift
+// Subtle gradient (professional)
+LinearGradient(
+    colors: [
+        Color(.systemBackground),
+        Color(.secondarySystemBackground)
+    ],
+    startPoint: .top,
+    endPoint: .bottom
+)
+
+// Brand gradient (expressive)
+LinearGradient(
+    colors: [.blue, .purple],
+    startPoint: .topLeading,
+    endPoint: .bottomTrailing
+)
+```
+
+### Background Decision Tree
+
+```
+Is content text-heavy or a form?
+├── YES → Use solid background
+└── NO → Is it a system UI element (nav bar, tab bar)?
+         ├── YES → Consider translucent material
+         └── NO → Is Reduce Transparency possibly enabled?
+                  ├── MUST SUPPORT → Use solid with fallback
+                  └── NO → Is background content simple/predictable?
+                           ├── YES → Consider translucent (≤3 surfaces)
+                           └── NO → Use solid background
+```
+
+---
+
+## Translucent Materials & Visual Depth
+
+iOS provides translucent materials that add depth and context awareness. However, **typography, color, and spacing remain your primary design tools** — translucent effects are supplementary enhancements for specific use cases.
+
+> **Apple HIG**: "Translucency can help people retain their context by providing a visible reminder of the content that's in the background. Use it sparingly."
+
+### When to Use Materials
+
+| Scenario | Recommendation | Rationale |
+|----------|----------------|-----------|
+| Navigation bar over scrolling content | ✅ **Use** | Standard iOS pattern, maintains context |
+| Tab bar | ✅ **Use** | Expected system behavior |
+| Modal sheet background | ⚠️ **Sparingly** | Only primary layer, not nested |
+| Cards over busy backgrounds | ❌ **Avoid** | Legibility suffers significantly |
+| Forms and input areas | ❌ **Avoid** | Users need maximum focus |
+| High-density text content | ❌ **Avoid** | Reduces readability |
+| More than 3 glass surfaces on screen | ❌ **Avoid** | Performance impact, visual noise |
+
+### Priority Hierarchy
+
+When using translucent effects, apply in this priority order:
+
+1. **Navigation bar** — Highest priority, most expected
+2. **Tab bar** — Standard iOS behavior
+3. **Modal sheet backgrounds** — Only primary layer
+4. **Floating overlays** — Sparingly
+5. **Cards/content** — Rarely, only over simple backgrounds
+
+### Performance Constraints (Apple Guidelines)
+
+| Constraint | iPhone | iPad | Rationale |
+|------------|--------|------|-----------|
+| Max compositing layers | **≤4** | ≤6 | GPU compositing overhead |
+| Blur radius | **≤40px** | ≤60px | Memory bandwidth |
+| Animated glass elements | **≤2** | ≤3 | Frame rate impact |
+| Total screen coverage | **≤40%** | ≤50% | Visual clarity + performance |
+
+**Critical Rules**:
+- Never stack blur effects (kills performance)
+- Avoid glass on elements that animate position
+- Use `.drawingGroup()` for complex glass hierarchies
+- Profile on actual devices — simulator doesn't reflect real GPU load
+
+### Material Types
+
+iOS provides materials ranging from thin to thick:
+
+```swift
+// From lightest to heaviest blur
+.ultraThinMaterial  // Barely visible blur, most transparent
+.thinMaterial       // Light blur
+.regularMaterial    // Standard blur (default)
+.thickMaterial      // Heavy blur
+.ultraThickMaterial // Maximum blur, most opaque
+```
 
 ### SwiftUI Implementation
 
 ```swift
-// Basic glass effect
-struct GlassCard: View {
+// Basic translucent card
+struct MaterialCard: View {
     var body: some View {
         VStack {
-            Text("Glass Card")
+            Text("Material Card")
                 .font(.headline)
-            Text("With Liquid Glass effect")
+            Text("With translucent background")
                 .font(.subheadline)
         }
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        // iOS 26+ specific
-        .glassEffect()
     }
 }
 
-// Navigation bar with glass
+// Navigation bar with material
 NavigationStack {
     ContentView()
         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 }
 
-// Tab bar with glass
+// Tab bar with material
 TabView {
     // tabs
 }
@@ -1051,33 +1169,90 @@ TabView {
 .background(.ultraThinMaterial)
 ```
 
+### Accessibility: Required Fallbacks
+
+Users with **Reduce Transparency** enabled MUST see solid backgrounds. This is not optional.
+
+```swift
+// SwiftUI - REQUIRED accessibility support
+struct AccessibleCard: View {
+    @Environment(\.accessibilityReduceTransparency) var reduceTransparency
+    @Environment(\.colorSchemeContrast) var contrast
+
+    var body: some View {
+        VStack {
+            Text("Content")
+        }
+        .padding()
+        .background(cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    @ViewBuilder
+    var cardBackground: some View {
+        if reduceTransparency || contrast == .increased {
+            // Solid fallback for accessibility
+            Color(.secondarySystemBackground)
+        } else {
+            // Material for standard mode
+            Rectangle().fill(.ultraThinMaterial)
+        }
+    }
+}
+```
+
 ### React Native Implementation
 
 ```tsx
 import { BlurView } from '@react-native-community/blur';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, AccessibilityInfo } from 'react-native';
+import { useState, useEffect } from 'react';
 
-const GlassCard = () => (
-  <BlurView
-    style={styles.glassCard}
-    blurType="ultraThinMaterial"
-    blurAmount={20}
-    reducedTransparencyFallbackColor="white"
-  >
-    <Text style={styles.title}>Glass Card</Text>
-  </BlurView>
-);
+const AccessibleMaterialCard = ({ children }) => {
+    const [reduceTransparency, setReduceTransparency] = useState(false);
+
+    useEffect(() => {
+        AccessibilityInfo.isReduceTransparencyEnabled()
+            .then(setReduceTransparency);
+
+        const subscription = AccessibilityInfo.addEventListener(
+            'reduceTransparencyChanged',
+            setReduceTransparency
+        );
+        return () => subscription.remove();
+    }, []);
+
+    if (reduceTransparency) {
+        return (
+            <View style={styles.solidCard}>
+                {children}
+            </View>
+        );
+    }
+
+    return (
+        <BlurView
+            style={styles.materialCard}
+            blurType="ultraThinMaterial"
+            blurAmount={20}
+            reducedTransparencyFallbackColor="#F2F2F7"
+        >
+            {children}
+        </BlurView>
+    );
+};
 
 const styles = StyleSheet.create({
-  glassCard: {
-    borderRadius: 20,
-    padding: 16,
-    overflow: 'hidden',
-  },
-  title: {
-    fontSize: 17,
-    fontWeight: '600',
-  },
+    solidCard: {
+        backgroundColor: '#F2F2F7',
+        borderRadius: 16,
+        padding: 16,
+    },
+    materialCard: {
+        borderRadius: 16,
+        padding: 16,
+        overflow: 'hidden',
+    },
 });
 ```
 
@@ -1085,29 +1260,108 @@ const styles = StyleSheet.create({
 
 ```dart
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 
-class GlassCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: CupertinoColors.systemBackground.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: CupertinoColors.white.withOpacity(0.2),
+class AccessibleMaterialCard extends StatelessWidget {
+    final Widget child;
+
+    const AccessibleMaterialCard({required this.child});
+
+    @override
+    Widget build(BuildContext context) {
+        final mediaQuery = MediaQuery.of(context);
+        // Check accessibility settings
+        final reduceTransparency = mediaQuery.accessibleNavigation ||
+            mediaQuery.highContrast;
+
+        if (reduceTransparency) {
+            // Solid fallback
+            return Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                    color: CupertinoColors.secondarySystemBackground
+                        .resolveFrom(context),
+                    borderRadius: BorderRadius.circular(16),
+                ),
+                child: child,
+            );
+        }
+
+        // Material effect
+        return ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                        color: CupertinoColors.systemBackground
+                            .resolveFrom(context).withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: child,
+                ),
             ),
-          ),
-          child: Text('Glass Card'),
-        ),
-      ),
-    );
-  }
+        );
+    }
 }
+```
+
+### Vestibular Sensitivity & Motion
+
+For users with vestibular sensitivities, glass effects with parallax can cause discomfort:
+
+**Limits (Apple Guidelines)**:
+- Parallax movement: **≤6px** total displacement
+- Animation duration: **≤300ms** for glass transitions
+- No continuous ambient motion when Reduce Motion enabled
+
+```swift
+// Respect Reduce Motion for glass animations
+@Environment(\.accessibilityReduceMotion) var reduceMotion
+
+var parallaxOffset: CGSize {
+    reduceMotion ? .zero : CGSize(
+        width: min(max(rawOffset.width, -6), 6),  // Limit to ±6px
+        height: min(max(rawOffset.height, -6), 6)
+    )
+}
+```
+
+### What NOT to Do
+
+```swift
+// ❌ BAD: Nested blur effects (performance killer)
+VStack {
+    content
+        .background(.ultraThinMaterial)
+}
+.background(.thinMaterial)  // Double compositing!
+
+// ❌ BAD: Glass on everything
+struct OverglassedView: View {
+    var body: some View {
+        VStack {
+            Card().background(.thinMaterial)
+            Card().background(.thinMaterial)
+            Card().background(.thinMaterial)
+            Card().background(.thinMaterial)  // Too many!
+        }
+        .background(.ultraThinMaterial)  // Even more!
+    }
+}
+
+// ❌ BAD: No accessibility fallback
+.background(.ultraThinMaterial)  // Fails for Reduce Transparency users
+
+// ✅ GOOD: Single material layer with fallback
+@Environment(\.accessibilityReduceTransparency) var reduceTransparency
+
+.background(
+    reduceTransparency
+        ? AnyShapeStyle(Color(.secondarySystemBackground))
+        : AnyShapeStyle(.ultraThinMaterial)
+)
 ```
 
 ---
@@ -4788,15 +5042,24 @@ struct ReorderableList<Item: Identifiable, Content: View>: View {
 - [ ] Delight budget allocated (5-10% for joy moments)
 - [ ] One-handed design for primary actions
 
-### Visual Design
+### Visual Design (Apple Priority Order)
+- [ ] **Typography first**: SF Pro with Dynamic Type scales
+- [ ] **Color system**: Semantic colors for automatic dark/light mode
+- [ ] **Spacing**: 8-point grid applied consistently
 - [ ] Follow Clarity, Deference, Depth principles
-- [ ] Use Liquid Glass on 2-3 key surfaces (not everywhere)
-- [ ] Semantic colors for automatic dark/light mode
-- [ ] SF Pro with Dynamic Type scales
-- [ ] 8-point grid for spacing
 - [ ] Corner radius hierarchy (20pt → 12pt → 8pt)
 - [ ] Shadow system (light/medium/heavy)
 - [ ] Design for both iPhone and iPad
+
+### Translucent Materials (When Used)
+- [ ] Used on ≤3 surfaces maximum per screen
+- [ ] Applied in priority order: nav bar > tab bar > sheets > cards
+- [ ] ≤4 compositing layers total (iPhone)
+- [ ] Blur radius ≤40px (iPhone) / ≤60px (iPad)
+- [ ] Solid fallbacks for Reduce Transparency users
+- [ ] No nested blur effects
+- [ ] Tested over various background content
+- [ ] No glass on forms or high-density text
 
 ### Animations & Motion
 - [ ] Spring-based animations (not linear)
@@ -4851,6 +5114,8 @@ struct ReorderableList<Item: Identifiable, Content: View>: View {
 - [ ] Color contrast (4.5:1 text, 3:1 UI)
 - [ ] Reduce Motion alternatives
 - [ ] Increase Contrast support
+- [ ] **Reduce Transparency fallbacks** (solid backgrounds)
+- [ ] Text on materials uses vibrancy for legibility
 
 ### Performance
 - [ ] Smooth 60fps animations
@@ -4858,6 +5123,10 @@ struct ReorderableList<Item: Identifiable, Content: View>: View {
 - [ ] Efficient image handling
 - [ ] Prefer transform properties (GPU-accelerated)
 - [ ] Minimal layout recalculations
+- [ ] **Material compositing ≤4 layers per screen**
+- [ ] **No nested blur effects**
+- [ ] `.drawingGroup()` for complex material hierarchies
+- [ ] Profile materials on device (not simulator)
 
 ### Testing
 - [ ] Test on multiple device sizes
@@ -4865,6 +5134,9 @@ struct ReorderableList<Item: Identifiable, Content: View>: View {
 - [ ] Test with VoiceOver enabled
 - [ ] Test with Dynamic Type at various sizes
 - [ ] Test with Reduce Motion enabled
+- [ ] **Test with Reduce Transparency enabled**
+- [ ] **Test with Increase Contrast enabled**
 - [ ] Test Live Activities (compact/expanded/minimal)
 - [ ] Test widgets (all sizes)
 - [ ] Test haptics on device (not simulator)
+- [ ] Test materials over various backgrounds

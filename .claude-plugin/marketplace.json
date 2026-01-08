@@ -1,15 +1,15 @@
 {
   "name": "sh4d0w-plugins",
-  "version": "2.1.0",
-  "description": "iOS Mobile Designer - Unique, non-template design with Brand Personality DNA",
+  "version": "2.2.0",
+  "description": "iOS Mobile Designer - Apple HIG with proper material usage and accessibility",
   "owner": {
     "name": "sh4d0w"
   },
   "plugins": [
     {
       "name": "ios-mobile-designer",
-      "version": "2.1.0",
-      "description": "Unique iOS design with Brand DNA, Emotional Framework, Motion Personality. Creates distinctive apps, not templates.",
+      "version": "2.2.0",
+      "description": "iOS design with Typography/Color/Spacing as primary tools. Performance budgets, accessibility fallbacks, decision frameworks.",
       "source": "./"
     }
   ]

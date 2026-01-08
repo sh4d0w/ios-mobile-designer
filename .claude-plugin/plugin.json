@@ -1,7 +1,7 @@
 {
   "name": "ios-mobile-designer",
-  "version": "2.1.0",
-  "description": "Premium iOS design with unique, non-template approach. Brand Personality DNA, Emotional Design Framework, Motion Personality System. Creates distinctive apps, not generic templates.",
+  "version": "2.2.0",
+  "description": "iOS design following Apple HIG. Typography, Color, Spacing as primary tools. Performance budgets, accessibility fallbacks, decision frameworks. Creates premium apps with proper material usage.",
   "author": {
     "name": "sh4d0w"
   }
