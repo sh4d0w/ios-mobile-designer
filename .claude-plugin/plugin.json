@@ -1,7 +1,7 @@
 {
   "name": "ios-mobile-designer",
-  "version": "2.2.0",
-  "description": "iOS design following Apple HIG. Typography, Color, Spacing as primary tools. Performance budgets, accessibility fallbacks, decision frameworks. Creates premium apps with proper material usage.",
+  "version": "2.3.0",
+  "description": "iOS design following Apple HIG. iOS 18+ features (Control Center, App Intents), visionOS support, modern SwiftUI APIs. Typography, Color, Spacing as primary tools.",
   "author": {
     "name": "sh4d0w"
   }

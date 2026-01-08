@@ -22,36 +22,26 @@ Every design decision must be **intentional**, not default. Before using any com
 - What emotion should this screen evoke?
 - How does this reinforce the app's personality?
 
-### The Flighty Principle: Data as Art
+### Data as Art Principle
 
-> "Pack it, wrap it, put some color on it." — Flighty Design Team
+Premium apps don't just display data—they **transform** it into visual stories.
 
-Premium apps don't just display data—they **transform** it into visual stories:
-
-**Progressive Disclosure**
+**Progressive Disclosure (20/80 Rule)**
 - Show **20%** of data by default (the essential)
 - Reveal **80%** on interaction (the detailed)
-- Surface should feel "calm and simple"
-- Depth available on demand
 
 **Information Hierarchy**
 ```
 ┌─────────────────────────────────┐
 │      PRIMARY METRIC             │  ← Largest, centered
-│         (42°F)                  │
 ├─────────────────────────────────┤
 │  Supporting    │    Context     │  ← Smaller, peripheral
-│   (Feels 38°)  │   (Humidity)   │
 ├─────────────────────────────────┤
-│     Tap for detailed forecast   │  ← On-demand depth
+│     Tap for detailed view       │  ← On-demand depth
 └─────────────────────────────────┘
 ```
 
-**What Flighty Does Differently:**
-- Prioritizes data above the fold ruthlessly
-- Uses airport signage conventions (familiar visual language)
-- Color encodes meaning (green = on time, red = delayed)
-- Animation reveals data progressively, not all at once
+**Examples**: Flighty (airport signage), Copilot (spending insights), Carrot Weather (data storytelling)
 
 ### Physical Metaphor Grounding
 
@@ -63,6 +53,10 @@ Every gesture should echo a real-world interaction. This creates intuitive, memo
 | Things 3 | Paper checklist | Dragging creates spatial meaning |
 | Apple Books | Physical book | Page curl, weight, texture |
 | Wallet | Leather wallet | Card stack, peek, slide |
+| Bear | Notebook | Smooth page transitions, tag organization |
+| Craft | Workspace desk | Blocks move like physical objects |
+| Arc Browser | Spatial tabs | Side panel feels like file cabinet |
+| Copilot (finance) | Bank statement | Scrolling through transaction history |
 
 **How to Apply:**
 1. Identify your app's real-world equivalent
@@ -223,10 +217,6 @@ HIG provides the grammar; your app provides the voice. Ways to stand out:
 ### Anti-Patterns: What NOT to Do
 
 ❌ **Generic AI Design Symptoms:**
-- Using translucent materials on every surface (≤3 max)
-- No accessibility fallbacks for Reduce Transparency
-- Nested blur effects (performance killer)
-- Materials on forms or text-heavy content
 - Identical spacing everywhere (no visual rhythm)
 - Stock SF Symbols without customization
 - Blue accent color for everything
@@ -236,12 +226,10 @@ HIG provides the grammar; your app provides the voice. Ways to stand out:
 - Haptics on release instead of press
 - All data shown at once (no progressive disclosure)
 - Same animation duration everywhere
+- Overusing materials (see **Translucent Materials** section for limits)
 
 ✅ **Premium App Patterns:**
 - Typography, color, spacing are PRIMARY design tools
-- Translucent materials on ≤3 key surfaces (nav, tab, sheets)
-- Solid fallbacks for Reduce Transparency users
-- Single material layer per element (never nested)
 - Varying spacing creates rhythm (tight grouping = related, wide = separate)
 - Customize SF Symbol colors, weights, and rendering modes
 - Choose accent colors that match brand personality
@@ -266,11 +254,12 @@ Before designing ANY screen, define your app's personality DNA. This determines 
 |-----------|-------------|--------|------------|--------|----------|
 | **Luxury** | Exclusive, refined, confident | Black, gold, deep jewel tones | Thin weights, wide tracking, serifs | Slow, smooth, cinematic | Amex, Net-A-Porter |
 | **Playful** | Fun, energetic, young | Bright, saturated, unexpected combos | Rounded, bouncy, variable weights | Bouncy, springy, surprising | Duolingo, Headspace |
-| **Professional** | Trustworthy, efficient, capable | Blues, grays, muted palette | Clean, medium weights, tight | Snappy, precise, no bounce | Bloomberg, Slack |
-| **Minimalist** | Calm, focused, essential | Monochrome, one accent | Light weights, generous spacing | Subtle, fade-based, smooth | Things 3, iA Writer |
-| **Bold** | Confident, disruptive, loud | High contrast, vibrant | Heavy weights, large sizes | Dramatic, fast, impactful | Spotify, Cash App |
-| **Warm** | Friendly, approachable, human | Earth tones, soft gradients | Rounded sans, medium weights | Gentle, organic, flowing | Airbnb, Calm |
-| **Technical** | Precise, data-driven, expert | Dark UI, neon accents | Monospace, tabular figures | Sharp, mechanical, exact | Flighty, Robinhood |
+| **Professional** | Trustworthy, efficient, capable | Blues, grays, muted palette | Clean, medium weights, tight | Snappy, precise, no bounce | Slack, Linear, Notion |
+| **Minimalist** | Calm, focused, essential | Monochrome, one accent | Light weights, generous spacing | Subtle, fade-based, smooth | Things 3, Bear, iA Writer |
+| **Bold** | Confident, disruptive, loud | High contrast, vibrant | Heavy weights, large sizes | Dramatic, fast, impactful | Spotify, Cash App, Arc |
+| **Warm** | Friendly, approachable, human | Earth tones, soft gradients | Rounded sans, medium weights | Gentle, organic, flowing | Airbnb, Calm, Streaks |
+| **Technical** | Precise, data-driven, expert | Dark UI, neon accents | Monospace, tabular figures | Sharp, mechanical, exact | Flighty, Copilot, YNAB |
+| **Creative** | Expressive, artistic, inspiring | Rich gradients, unexpected palettes | Mixed weights, custom fonts | Fluid, morphing, playful | Craft, Procreate, Darkroom |
 
 ### Defining Your DNA
 
@@ -638,11 +627,11 @@ struct CelebrationView: View {
             ConfettiView(isActive: animate)
 
             VStack(spacing: 16) {
-                // Animated icon
+                // Animated icon (iOS 17+ symbol effects)
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 72))
                     .foregroundStyle(.green)
-                    .symbolEffect(.bounce, value: animate)
+                    .symbolEffect(.bounce.up.byLayer, value: animate)
                     .scaleEffect(animate ? 1 : 0.5)
 
                 Text("You did it!")
@@ -753,6 +742,11 @@ struct CountdownView: View {
 | Apple Pay | Payment success | Double haptic + checkmark + sound |
 | Shazam | Song identified | Circular ripple from center |
 | Flighty | Flight lands | Progress bar completes + celebration |
+| Bear | Note creation | Smooth tag animation |
+| Craft | Block linking | Magnetic snap + subtle sound |
+| Arc | New tab | Spatial slide-in animation |
+| Copilot | Budget achieved | Confetti + achievement badge |
+| Streaks | Task streak | Ring completion animation |
 
 ### Building Your Signature Moment
 
@@ -2113,6 +2107,211 @@ class WidgetService {
 | Design for all sizes separately | Shrink large design for small |
 | Support accessibility | Ignore Dynamic Type |
 | Use widget-specific backgrounds | Use solid opaque backgrounds |
+
+---
+
+## iOS 18+ Features
+
+### Control Center Widgets (iOS 18+)
+
+Control Center widgets provide quick access to app functionality directly from Control Center.
+
+```swift
+import WidgetKit
+import SwiftUI
+
+// MARK: - Control Center Toggle
+struct QuickToggleControl: ControlWidget {
+    var body: some ControlWidgetConfiguration {
+        StaticControlConfiguration(kind: "com.app.quickToggle") {
+            ControlWidgetToggle(
+                "Dark Mode",
+                isOn: DarkModeManager.shared.isEnabled,
+                action: ToggleDarkModeIntent()
+            ) { isOn in
+                Label(
+                    isOn ? "On" : "Off",
+                    systemImage: isOn ? "moon.fill" : "sun.max.fill"
+                )
+            }
+        }
+        .displayName("Dark Mode")
+        .description("Toggle dark mode quickly")
+    }
+}
+
+// MARK: - Control Center Button
+struct QuickActionControl: ControlWidget {
+    var body: some ControlWidgetConfiguration {
+        StaticControlConfiguration(kind: "com.app.quickAction") {
+            ControlWidgetButton(action: StartTimerIntent()) {
+                Label("Start Timer", systemImage: "timer")
+            }
+        }
+        .displayName("Quick Timer")
+    }
+}
+
+// Register in WidgetBundle
+@main
+struct AppWidgets: WidgetBundle {
+    var body: some Widget {
+        // Home Screen widgets
+        SmallWidget()
+        MediumWidget()
+
+        // Control Center widgets
+        QuickToggleControl()
+        QuickActionControl()
+    }
+}
+```
+
+### App Intents System (iOS 17+)
+
+App Intents power Shortcuts, Widgets, Siri, and Spotlight. Design intents for discoverability.
+
+```swift
+import AppIntents
+
+// MARK: - Parameterized Intent
+struct CreateTaskIntent: AppIntent {
+    static var title: LocalizedStringResource = "Create Task"
+    static var description = IntentDescription("Create a new task in your list")
+
+    // Siri will ask for this parameter
+    @Parameter(title: "Task Name")
+    var taskName: String
+
+    @Parameter(title: "Due Date", default: nil)
+    var dueDate: Date?
+
+    @Parameter(title: "Priority", default: .medium)
+    var priority: TaskPriority
+
+    // Make it appear in Shortcuts
+    static var parameterSummary: some ParameterSummary {
+        Summary("Create \(\.$taskName)") {
+            \.$dueDate
+            \.$priority
+        }
+    }
+
+    func perform() async throws -> some IntentResult & ReturnsValue<TaskEntity> {
+        let task = await TaskManager.shared.create(
+            name: taskName,
+            dueDate: dueDate,
+            priority: priority
+        )
+        return .result(value: TaskEntity(task: task))
+    }
+}
+
+// MARK: - App Shortcuts Provider (Spotlight/Siri)
+struct AppShortcuts: AppShortcutsProvider {
+    static var appShortcuts: [AppShortcut] {
+        AppShortcut(
+            intent: CreateTaskIntent(),
+            phrases: [
+                "Create a task in \(.applicationName)",
+                "Add task to \(.applicationName)",
+                "New \(.applicationName) task"
+            ],
+            shortTitle: "Create Task",
+            systemImageName: "plus.circle"
+        )
+    }
+}
+
+// MARK: - Entity for Spotlight
+struct TaskEntity: AppEntity {
+    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Task")
+    static var defaultQuery = TaskQuery()
+
+    var id: String
+    var name: String
+    var isComplete: Bool
+
+    var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(
+            title: "\(name)",
+            subtitle: isComplete ? "Completed" : "Pending",
+            image: .init(systemName: isComplete ? "checkmark.circle.fill" : "circle")
+        )
+    }
+}
+```
+
+### Tinted App Icons (iOS 18+)
+
+Support automatic icon tinting in Dark Mode and user customization.
+
+```swift
+// In your Asset Catalog:
+// 1. Create AppIcon with standard layers
+// 2. Add "AppIcon - Dark" variant for Dark Mode
+// 3. Add "AppIcon - Tinted" with single-color design for tinting
+
+// Icon design requirements for tinting:
+// - Provide a single-color silhouette version
+// - Use transparency for areas that should show tint color
+// - Avoid gradients in tinted version
+// - Test with multiple tint colors (blue, green, purple, etc.)
+```
+
+**Tinted Icon Best Practices:**
+
+| Do | Don't |
+|----|-------|
+| Create dedicated tint-ready variant | Rely on automatic conversion |
+| Use bold, recognizable silhouette | Include fine details |
+| Test across all system tint colors | Only test with one color |
+| Maintain brand recognition | Compromise icon clarity |
+
+### Interactive Widgets Enhancements (iOS 17+)
+
+```swift
+// Toggle with animation feedback
+struct InteractiveTaskWidget: View {
+    let task: TaskEntry
+
+    var body: some View {
+        Button(intent: ToggleTaskIntent(taskId: task.id)) {
+            HStack {
+                Image(systemName: task.isComplete ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(task.isComplete ? .green : .secondary)
+                    .contentTransition(.symbolEffect(.replace))
+
+                Text(task.title)
+                    .strikethrough(task.isComplete)
+            }
+        }
+        .buttonStyle(.plain)
+        // Invalidate when state changes
+        .invalidatableContent()
+    }
+}
+
+// Multiple buttons in one widget
+struct QuickActionsWidget: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(intent: StartWorkoutIntent()) {
+                Label("Workout", systemImage: "figure.run")
+            }
+
+            Button(intent: LogWaterIntent()) {
+                Label("Water", systemImage: "drop.fill")
+            }
+
+            Button(intent: StartMeditationIntent()) {
+                Label("Meditate", systemImage: "brain.head.profile")
+            }
+        }
+        .buttonStyle(.bordered)
+    }
+}
+```
 
 ---
 
@@ -4056,6 +4255,141 @@ PageRouteBuilder(
 4. **Reduce overdraw**: Transparent overlapping views hurt performance
 5. **Profile with Instruments**: Always test on device, not simulator
 
+### Modern Animation APIs (iOS 17+)
+
+#### Phased Animations
+
+```swift
+// Multi-phase animation with automatic sequencing
+enum LoadingPhase: CaseIterable {
+    case initial, loading, complete
+
+    var scale: CGFloat {
+        switch self {
+        case .initial: 0.8
+        case .loading: 1.0
+        case .complete: 1.2
+        }
+    }
+
+    var opacity: Double {
+        switch self {
+        case .initial: 0.5
+        case .loading: 1.0
+        case .complete: 1.0
+        }
+    }
+}
+
+struct PhasedLoadingView: View {
+    @State private var trigger = false
+
+    var body: some View {
+        PhaseAnimator(LoadingPhase.allCases, trigger: trigger) { phase in
+            Circle()
+                .scaleEffect(phase.scale)
+                .opacity(phase.opacity)
+        } animation: { phase in
+            switch phase {
+            case .initial: .easeOut(duration: 0.2)
+            case .loading: .easeInOut(duration: 0.5)
+            case .complete: .spring(duration: 0.3, bounce: 0.3)
+            }
+        }
+    }
+}
+```
+
+#### Keyframe Animations
+
+```swift
+// Complex multi-property animation sequences
+struct BounceKeyframes: View {
+    @State private var trigger = false
+
+    var body: some View {
+        Text("🎉")
+            .font(.system(size: 64))
+            .keyframeAnimator(
+                initialValue: AnimationValues(),
+                trigger: trigger
+            ) { content, value in
+                content
+                    .scaleEffect(value.scale)
+                    .offset(y: value.verticalOffset)
+                    .rotationEffect(.degrees(value.rotation))
+            } keyframes: { _ in
+                KeyframeTrack(\.scale) {
+                    SpringKeyframe(1.5, duration: 0.2)
+                    SpringKeyframe(1.0, duration: 0.3)
+                }
+                KeyframeTrack(\.verticalOffset) {
+                    SpringKeyframe(-30, duration: 0.15)
+                    SpringKeyframe(0, duration: 0.25)
+                }
+                KeyframeTrack(\.rotation) {
+                    LinearKeyframe(15, duration: 0.1)
+                    LinearKeyframe(-15, duration: 0.1)
+                    LinearKeyframe(0, duration: 0.15)
+                }
+            }
+    }
+}
+
+struct AnimationValues {
+    var scale: CGFloat = 1.0
+    var verticalOffset: CGFloat = 0
+    var rotation: Double = 0
+}
+```
+
+#### Symbol Effects (iOS 17+)
+
+```swift
+// Modern symbol animation effects
+Image(systemName: "wifi")
+    .symbolEffect(.variableColor.iterative)  // Animated signal bars
+
+Image(systemName: "bell.fill")
+    .symbolEffect(.bounce.up.byLayer, value: notificationCount)
+
+Image(systemName: "heart.fill")
+    .symbolEffect(.pulse, isActive: isAnimating)
+
+Image(systemName: "checkmark.circle")
+    .contentTransition(.symbolEffect(.replace.downUp))
+
+// Combine effects
+Image(systemName: "arrow.down.circle.fill")
+    .symbolEffect(.bounce, options: .repeat(3))
+    .symbolRenderingMode(.hierarchical)
+```
+
+#### Custom Transitions (iOS 17+)
+
+```swift
+// Modern transition API
+struct CustomTransition: Transition {
+    func body(content: Content, phase: TransitionPhase) -> some View {
+        content
+            .opacity(phase.isIdentity ? 1 : 0)
+            .scaleEffect(phase.isIdentity ? 1 : 0.8)
+            .blur(radius: phase.isIdentity ? 0 : 10)
+    }
+}
+
+// Usage
+if showCard {
+    CardView()
+        .transition(CustomTransition())
+}
+
+// Built-in modern transitions
+.transition(.push(from: .bottom))
+.transition(.blurReplace)
+.transition(.symbolEffect)
+```
+
 ---
 
 ## SF Symbols
@@ -5032,6 +5366,98 @@ struct ReorderableList<Item: Identifiable, Content: View>: View {
 
 ---
 
+## visionOS Considerations
+
+When designing for Apple Vision Pro, extend your iOS design language to spatial computing.
+
+### Key Differences from iOS
+
+| Aspect | iOS | visionOS |
+|--------|-----|----------|
+| Input | Touch | Eye + hand gestures |
+| Layout | 2D surfaces | 3D volumes + windows |
+| Materials | Flat/translucent | Glass with depth |
+| Typography | Standard scales | Larger, more legible |
+| Contrast | 4.5:1 minimum | Higher for comfort |
+
+### Design Principles
+
+**1. Ergonomics First**
+- Windows at comfortable arm's length (~1.5m)
+- Content centered in field of view
+- Avoid placing UI at extreme edges
+
+**2. Glass as Default Material**
+```swift
+// visionOS window material
+.glassBackgroundEffect()  // Only available in visionOS
+
+// Cross-platform fallback
+#if os(visionOS)
+    .glassBackgroundEffect()
+#else
+    .background(.ultraThinMaterial)
+#endif
+```
+
+**3. Spatial Layout**
+
+```swift
+// visionOS volumetric content
+struct SpatialView: View {
+    var body: some View {
+        RealityView { content in
+            // 3D content here
+        }
+        .ornament(attachmentAnchor: .scene(.bottom)) {
+            // 2D controls attached to 3D content
+            HStack {
+                Button("Play") { }
+                Button("Pause") { }
+            }
+            .padding()
+            .glassBackgroundEffect()
+        }
+    }
+}
+```
+
+**4. Hover Effects (Eye Tracking)**
+
+```swift
+// Highlight on gaze
+Button("Action") { }
+    .buttonStyle(.borderless)
+    .hoverEffect(.highlight)  // Shows when user looks at it
+
+// Custom hover effect
+.hoverEffect { effect, isActive, proxy in
+    effect
+        .scaleEffect(isActive ? 1.05 : 1.0)
+        .shadow(radius: isActive ? 10 : 0)
+}
+```
+
+### Typography for visionOS
+
+| iOS Style | visionOS Equivalent | Notes |
+|-----------|---------------------|-------|
+| Title 1 (28pt) | Title 1 (34pt) | ~20% larger |
+| Body (17pt) | Body (21pt) | Improved legibility |
+| Caption (12pt) | Caption (15pt) | Avoid smaller |
+
+### iOS → visionOS Migration Checklist
+
+- [ ] Replace small touch targets with larger hit areas
+- [ ] Add hover states to interactive elements
+- [ ] Test typography legibility at distance
+- [ ] Convert materials to glass where appropriate
+- [ ] Add ornaments for controls near 3D content
+- [ ] Consider depth and layering for windows
+- [ ] Test with eye tracking + hand gestures
+
+---
+
 ## Best Practices Checklist
 
 ### Design Philosophy
@@ -5097,6 +5523,12 @@ struct ReorderableList<Item: Identifiable, Content: View>: View {
 - [ ] Glanceable in <3 seconds
 - [ ] Deep links to relevant content
 
+### iOS 18+ Features
+- [ ] Control Center widgets for quick actions
+- [ ] App Intents for Siri/Shortcuts/Spotlight
+- [ ] Tinted app icon variant provided
+- [ ] Interactive widget buttons where appropriate
+
 ### Data Visualization
 - [ ] Information hierarchy (primary → secondary → tertiary)
 - [ ] Color as data (green/yellow/red meanings)
@@ -5140,3 +5572,10 @@ struct ReorderableList<Item: Identifiable, Content: View>: View {
 - [ ] Test widgets (all sizes)
 - [ ] Test haptics on device (not simulator)
 - [ ] Test materials over various backgrounds
+
+### visionOS (If Targeting)
+- [ ] Test hover effects with eye tracking
+- [ ] Typography legible at arm's length
+- [ ] Windows positioned ergonomically
+- [ ] Glass materials render correctly
+- [ ] Hand gesture interactions work smoothly

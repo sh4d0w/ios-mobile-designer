@@ -2,6 +2,35 @@
 
 All notable changes to iOS Mobile Designer will be documented in this file.
 
+## [2.3.0] - 2026-01-08
+
+### Added
+- **iOS 18+ Features Section** - Control Center Widgets, App Intents system, Tinted App Icons, Interactive Widget enhancements
+- **visionOS Considerations** - Eye tracking, spatial layout, glass materials, hover effects, typography adjustments
+- **Modern Animation APIs** - Phased animations, Keyframe animations, Symbol Effects (iOS 17+), Custom Transitions
+- **Creative Archetype** - New brand archetype: Craft, Procreate, Darkroom style
+
+### Improved
+- **Diversified App Examples** - Added Arc, Bear, Craft, Copilot, YNAB, Streaks, Linear, Notion, Darkroom
+- **Updated SwiftUI APIs** - `.symbolEffect(.bounce.up.byLayer)`, `PhaseAnimator`, `keyframeAnimator`
+- **Consolidated Material Warnings** - Removed duplicates, single authoritative section
+- **Condensed Verbose Sections** - ~15% reduction in redundant content
+
+### Changed
+- **"The Flighty Principle" → "Data as Art Principle"** - More general naming
+- **Physical Metaphor Table** - Added Bear, Craft, Arc, Copilot examples
+- **Signature Moments Table** - Added 5 new app examples
+- **Brand Archetypes Table** - Added Creative archetype, diversified examples
+
+### Best Practices Checklist
+- Added iOS 18+ Features section
+- Added visionOS testing checklist
+
+### Stats
+- New sections: 3 (iOS 18+, visionOS, Modern Animation APIs)
+- New app examples: 12+
+- Modern API patterns: 20+ new snippets
+
 ## [2.2.0] - 2026-01-08
 
 ### Critical Fixes
