@@ -1,15 +1,15 @@
 {
   "name": "sh4d0w-plugins",
-  "version": "3.0.0",
-  "description": "iOS Mobile Designer - Lean Apple HIG (86% smaller)",
+  "version": "3.1.0",
+  "description": "iOS Mobile Designer - Lean Apple HIG + Example Apps",
   "owner": {
     "name": "sh4d0w"
   },
   "plugins": [
     {
       "name": "ios-mobile-designer",
-      "version": "3.0.0",
-      "description": "Lean iOS design: HIG essentials, iOS 18+, visionOS. 752 lines, 20KB.",
+      "version": "3.1.0",
+      "description": "Lean iOS design: HIG essentials, iOS 18+, visionOS. Includes habit tracker example.",
       "source": "./"
     }
   ]

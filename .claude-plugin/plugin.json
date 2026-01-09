@@ -1,7 +1,7 @@
 {
   "name": "ios-mobile-designer",
-  "version": "3.0.0",
-  "description": "Lean iOS design skill. Apple HIG essentials: Typography, Color, Spacing, Components, Accessibility. iOS 18+, visionOS. 86% smaller, 100% practical.",
+  "version": "3.1.0",
+  "description": "Lean iOS design skill. Apple HIG essentials + example apps. Typography, Color, Spacing, Components, Accessibility. iOS 18+, visionOS.",
   "author": {
     "name": "sh4d0w"
   }

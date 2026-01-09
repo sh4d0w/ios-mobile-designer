@@ -2,6 +2,32 @@
 
 All notable changes to iOS Mobile Designer will be documented in this file.
 
+## [3.1.0] - 2026-01-09
+
+### Added
+- **Habit Tracker Example** - Complete iOS app design with SwiftUI code
+  - Progress rings (Apple Fitness style)
+  - Daily streak tracking with flame animation
+  - Week progress dots visualization
+  - Completion celebration with haptics
+  - Motivational text system
+- **HTML Widget Examples** - `examples/habit-tracker-widgets.html`
+  - Small widget (169x169)
+  - Medium widget (360x169)
+  - Large widget (360x376)
+  - Lock Screen widgets (circular, rectangular)
+  - Dark mode support via `prefers-color-scheme`
+  - Interactive habit toggling with animations
+  - iOS semantic colors as CSS variables
+
+### Design Patterns Demonstrated
+- 8-point grid spacing system
+- SF Pro typography via `-apple-system`
+- Semantic colors with auto dark/light
+- Spring animations (response: 0.4, damping: 0.7)
+- Haptic hierarchy (light → medium → success)
+- Progress ring with SVG stroke-dashoffset
+
 ## [3.0.0] - 2026-01-09
 
 ### BREAKING: Radical Size Reduction
