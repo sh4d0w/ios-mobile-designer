@@ -2,6 +2,58 @@
 
 All notable changes to iOS Mobile Designer will be documented in this file.
 
+## [3.0.0] - 2026-01-09
+
+### BREAKING: Radical Size Reduction
+
+```
+Before: 5,581 lines / 156KB
+After:    752 lines /  20KB
+Reduction:           86.5%
+```
+
+### Removed (Philosophy → Practicality)
+- **Design Philosophy** (231 lines) - philosophical essays
+- **Brand Personality DNA** (71 lines) - not Apple HIG
+- **Color Theory & Palette Generation** (109 lines) - not iOS-specific
+- **Anti-Template Techniques** (146 lines) - abstract concepts
+- **Emotional Design Framework** (154 lines) - abstract concepts
+- **Signature Moments** (152 lines) - nice-to-have
+- **Motion Personality** (119 lines) - duplicated Animation section
+- **Context-Specific Design** (203 lines) - Flighty-style examples
+- **Premium Polish Details** (172 lines) - merged into components
+- **Data Visualization** (217 lines) - specialized
+
+### Condensed
+- **Animation & Motion**: 643 → 54 lines (92% reduction)
+- **Live Activities**: 400 → 30 lines (92% reduction)
+- **Widgets**: 350 → 20 lines (94% reduction)
+- **UI Components**: 578 → 100 lines (83% reduction)
+
+### Kept (Essential HIG)
+- Core Principles (Clarity, Deference, Depth, Consistency)
+- Typography System (SF Pro, Dynamic Type)
+- Color System (Semantic colors)
+- Spacing & Layout (8-point grid, Safe Areas)
+- Backgrounds & Materials (with limits)
+- UI Components (Navigation, Tabs, Sheets, Buttons, Forms)
+- Touch Targets & Gestures
+- Accessibility (VoiceOver, Dynamic Type, Contrast, Motion)
+- Animation & Motion (Spring presets, Symbol Effects)
+- SF Symbols
+- Live Activities & Widgets (condensed)
+- iOS 18+ Features (Control Center, App Intents, Tinted Icons)
+- visionOS (key differences)
+- Empty States & Edge Cases
+- Screen Sizes Reference
+- Best Practices Checklist
+
+### Why This Matters
+- **Faster processing**: Claude reads less content per request
+- **Focused guidance**: Only practical, actionable information
+- **No fluff**: Every line is a usable reference or code snippet
+- **Same coverage**: All essential iOS patterns still included
+
 ## [2.3.0] - 2026-01-08
 
 ### Added
